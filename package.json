@@ -1,0 +1,53 @@
+{
+  "name": "life-management-app",
+  "version": "1.0.0",
+  "description": "An app I'm making so I can keep track of everything I do, and plan more effectively for the future.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Keiranbeaton/life-management-app.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Keiranbeaton/life-management-app/issues"
+  },
+  "homepage": "https://github.com/Keiranbeaton/life-management-app#readme",
+  "dependencies": {
+    "angular": "^1.7.5",
+    "angular-route": "^1.7.5",
+    "autoprefixer": "^9.4.3",
+    "babel-core": "^6.26.3",
+    "babel-loader": "^8.0.4",
+    "babel-preset-env": "^1.7.0",
+    "bluebird": "^3.5.3",
+    "body-parser": "^1.18.3",
+    "cors": "^2.8.5",
+    "css-loader": "^2.0.1",
+    "d3": "^5.7.0",
+    "debug": "^4.1.0",
+    "express": "^4.16.4",
+    "extract-text-webpack-plugin": "^3.0.2",
+    "file-loader": "^2.0.0",
+    "html-loader": "^0.5.5",
+    "http-errors": "^1.7.1",
+    "mongoose": "^5.4.0",
+    "node-sass": "^4.11.0",
+    "postcss-loader": "^3.0.0",
+    "sass-loader": "^7.1.0",
+    "style-loader": "^0.23.1",
+    "url-loader": "^1.1.2",
+    "webpack": "^4.27.1"
+  },
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "chai-http": "^4.2.0",
+    "eslint": "^5.10.0",
+    "mocha": "^5.2.0",
+    "webpack-dev-server": "^3.1.10"
+  }
+}
