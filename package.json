@@ -4,7 +4,10 @@
   "description": "An app I'm making so I can keep track of everything I do, and plan more effectively for the future.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha ./backend/test/test-harness.js",
+    "watch": "node ./node_modules/webpack-dev-server/bin/webpack-dev-server.js",
+    "start": "node server.js",
+    "windowsDebug": "@powershell -Command $env:DEBUG='*'; node server.js"
   },
   "repository": {
     "type": "git",
