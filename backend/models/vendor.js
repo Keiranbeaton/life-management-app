@@ -3,7 +3,6 @@
 const mongoose = require('mongoose');
 
 let vendorSchema = mongoose.Schema({
-  userId: {type: mongoose.Schema.Types.ObjectId, required: true},
   name: {type: String, required: true}
 });
 
