@@ -60,10 +60,25 @@ userSchema.methods.addVendor = function(data) {
     });
 };
 
+userSchema.methods.removeVendorById = function(vendorId){
+    return new Promise((resolve, reject) => {
+      this.vendors.filter(value => {
+        if (value === vendorId) return false;
+        return true;
+      });
+      this.save()
+        .then(() => {
+          return Vendor.findByIdAndRemove(vendorId);
+        })
+        .then(ven => resolve(ven))
+        .catch(reject);
+    });
+}
+
 userSchema.methods.addTransaction = function(data) {
   let result;
   return new Promise((resolve, reject) => {
-    if (!data.date.day || !data.date.month || !data.date.year ||) return reject(createError(400, 'Transactions require a date'));
+    if (!data.date.day || !data.date.month || !data.date.year) return reject(createError(400, 'Transactions require a date'));
     if (!data.amount) return reject(createError(400, 'Transactions require an amount'));
     if (!data.vendor) return reject(createError(400, 'Transactions require a vendor'));
     if (!data.category) return reject(createError(400, 'Transactions require a category'));
@@ -74,6 +89,21 @@ userSchema.methods.addTransaction = function(data) {
         return this.save();
       })
       .then(() => resolve(result))
+      .catch(reject);
+  });
+}
+
+userSchema.methods.removeTransactionById = function(transId) {
+  return new Promise((resolve, reject) => {
+    this.transactions.filter(value => {
+      if (value === transId) return false;
+      return true;
+    });
+    this.save()
+      .then(() => {
+        return Transaction.findByIdAndRemove(transId);
+      })
+      .then(trans => resolve(trans))
       .catch(reject);
   });
 }
@@ -93,6 +123,21 @@ userSchema.methods.addCategory = function(data) {
   });
 }
 
+userSchema.methods.removeCategoryById = function(catId) {
+  return new Promise((resolve, reject) => {
+    this.categories.filter(value => {
+      if (value === catId) return false;
+      return true;
+    });
+    this.save()
+      .then(() => {
+        return Category.findByIdAndRemove(catId);
+      })
+      .then(cat => resolve(cat))
+      .catch(reject);
+  })
+}
+
 userSchema.methods.addSubcategory = function(data) {
   let result;
   return new Promise((resolve, reject) => {
@@ -105,6 +150,21 @@ userSchema.methods.addSubcategory = function(data) {
         return this.save();
       })
       .then(() => resolve(result))
+      .catch(reject);
+  });
+}
+
+userSchema.methods.removeSubcategoryById = function(subId) {
+  return new Promise((resolve, reject) => {
+    this.subcategories.filter(value => {
+      if (value === subId) return false;
+      return true;
+    });
+    this.save()
+      .then(() => {
+        return Subcategory.findByIdAndRemove(subId);
+      })
+      .then(sub => resolve(sub))
       .catch(reject);
   });
 }

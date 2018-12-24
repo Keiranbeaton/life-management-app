@@ -16,7 +16,7 @@ let transactionSchema = mongoose.Schema({
   amount: {type: Number, required: true},
   vendor: {type: mongoose.Schema.Types.ObjectId, required: true},
   category: {type: mongoose.Schema.Types.ObjectId, required: true},
-  subCategory: {type: mongoose.Schema.Types.ObjectId},
+  subcategory: {type: mongoose.Schema.Types.ObjectId},
   description: String
 });
 
