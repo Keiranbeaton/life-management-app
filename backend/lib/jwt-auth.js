@@ -3,7 +3,7 @@
 const jwt = require('jsonwebtoken');
 const assert = require('assert');
 const User = require('../model/user');
-const createError = require('http-errors');
+const HandleError = require('./handle-error');
 
 module.exports = exports = function(req, res, next) {
   new Promise((resolve, reject) => {
@@ -20,5 +20,5 @@ module.exports = exports = function(req, res, next) {
         next();
         resolve(user);
       }, reject);
-  }).catch(next(createError(401)));
+  }).catch(HandleError(401, next));
 }
