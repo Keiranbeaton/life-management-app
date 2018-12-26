@@ -5,8 +5,8 @@ const createError = require('http-errors');
 const jsonParser = require('body-parser').json();
 const debug = require('debug')('transactionRouter');
 
-const Transaction = require('../model/transaction');
-const User = require('../model/user');
+const Transaction = require('../models/transaction');
+const User = require('../models/user');
 
 let transactionRouter = module.exports = exports = new Router();
 

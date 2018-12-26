@@ -5,8 +5,8 @@ const createError = require('http-errors');
 const jsonParser = require('body-parser').json();
 const debug = require('debug')('subcategoryRouter');
 
-const Subcategory = require('../model/subcategory');
-const User = require('../model/user');
+const Subcategory = require('../models/subcategory');
+const User = require('../models/user');
 
 let subcategoryRouter = module.exports = exports = new Router();
 

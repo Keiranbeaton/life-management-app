@@ -5,8 +5,8 @@ const createError = require('http-errors');
 const jsonParser = require('body-parser').json();
 const debug = require('debug')('vendorRouter');
 
-const Vendor = require('../model/vendor');
-const User = require('../model/user');
+const Vendor = require('../models/vendor');
+const User = require('../models/user');
 
 let vendorRouter = module.exports = exports = new Router();
 

@@ -2,7 +2,7 @@
 
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
-const jwt = require('jsontwebtoken');
+const jwt = require('jsonwebtoken');
 const createError = require('http-errors');
 const Promise = require('bluebird');
 const Category = require('./category');

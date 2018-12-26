@@ -3,9 +3,9 @@
 const Router = require('express').Router;
 const jsonParser = require('body-parser').json();
 const createError = require('http-errors');
-const User = require('../model/user');
+const User = require('../models/user');
 // const Vendor = require('../model/vendor');
-const Transaction = require('../model/transaction');
+const Transaction = require('../models/transaction');
 // const Category = require('../model/category');
 // const Subcategory = require('../model/subcategory');
 const debug = require('debug')('userRouter');
