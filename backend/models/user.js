@@ -29,6 +29,7 @@ userSchema.methods.generateHash = function(password) {
   return new Promise((resolve, reject) => {
     bcrypt.hash(password, 8, (err, data) => {
       if (err) return reject(err);
+      console.log('past reject');
       this.basic.password = data;
       resolve({token: jwt.sign({idd: this.basic.email}, process.env.APP_SECRET)});
     });

@@ -4,6 +4,7 @@ const jwt = require('jsonwebtoken');
 const assert = require('assert');
 const User = require('../models/user');
 const HandleError = require('./handle-error');
+const Promise = require('bluebird');
 
 module.exports = exports = function(req, res, next) {
   new Promise((resolve, reject) => {

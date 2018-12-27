@@ -18,7 +18,6 @@ app.get('/api/jwtAuth', jwtAuth, function(req, res) {
 });
 
 app.use((err, req, res, next) => {
-  console.log('err', err);
   res.status(err.statusCode.json(err.message));
 });
 
