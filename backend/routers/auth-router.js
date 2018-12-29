@@ -24,7 +24,7 @@ authRouter.post('/signup', jsonParser, (req, res, next) => {
         tokenData.userId = userReturn._id;
         res.json(tokenData);
       }, HandleError(400, next, 'Bad Request'));
-    }, HandleError(500, next));
+    }, HandleError(500, next, 'Username already in use'));
 });
 
 authRouter.get('/login', BasicHttp, (req, res, next) => {
