@@ -1,5 +1,5 @@
-<div>
-  <form class="kb-login-form" ng-submit="$ctrl.login($ctrl.user)">
+<div ng-init="$ctrl.checkUser()" class="kb-container">
+  <form class="kb-login-form" name="login" ng-submit="$ctrl.login($ctrl.user)">
     <div class="kb-form-group">
       <label for="email">Email:</label>
       <input type="text" required ng-model="$ctrl.user.email">
