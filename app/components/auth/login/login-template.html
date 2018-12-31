@@ -1,0 +1,13 @@
+<div>
+  <form class="kb-login-form" ng-submit="$ctrl.login($ctrl.user)">
+    <div class="kb-form-group">
+      <label for="email">Email:</label>
+      <input type="text" required ng-model="$ctrl.user.email">
+    </div>
+    <div class="kb-form-group">
+      <label for="password">Password:</label>
+      <input type="text" required ng-model="$ctrl.user.password">
+    </div>
+    <button class="kb-button" type="submit">Log In</button>
+  </form>
+</div>
