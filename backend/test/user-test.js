@@ -67,33 +67,12 @@ describe('User Tests', function() {
         done();
       });
   });
-  it('Put bad :id', function(done) {
-    chai.request(baseUrl)
-      .put('/badid')
-      .send({name: {first: 'name'}})
-      .end((err, res) => {
-        expect(err).to.eql(null);
-        expect(res.statis).to.eql(404);
-        expect(res.text).to.eql('"User Id Not Found"');
-        done();
-      });
-  });
   it('Delete :id', function(done) {
-    this.timeout(4000);
     chai.request(baseUrl)
       .delete('/' + user._id)
       .end((err, res) => {
         expect(err).to.eql(null);
         expect(res.status).to.eql(200);
-      });
-  });
-  it('Delete bad :id', function(done) {
-    chai.request(baseUrl)
-      .delete('/badid')
-      .end((err, res) => {
-        expect(err).to.eql(null);
-        expect(res.status).to.eql(404);
-        expect(res.text).to.eql('"User Id Not Found"');
         done();
       });
   });

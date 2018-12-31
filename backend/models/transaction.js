@@ -17,7 +17,8 @@ let transactionSchema = mongoose.Schema({
   vendor: {type: mongoose.Schema.Types.ObjectId, required: true},
   category: {type: mongoose.Schema.Types.ObjectId, required: true},
   subcategory: {type: mongoose.Schema.Types.ObjectId},
-  description: String
+  description: String,
+  isSubscription: {type: Boolean, required: true, default: false}
 });
 
 module.exports = exports = mongoose.model('Transaction', transactionSchema);
