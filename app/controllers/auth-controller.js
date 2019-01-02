@@ -2,7 +2,7 @@
 
 module.exports = function(app) {
 
-  app.controller('AuthController', ['$http', '$location', '$window', '$log', '$scope', 'auth', function($http, $location, $window, $log, $scope, auth) {
+  app.controller('AuthController', ['$http', '$location', '$window', '$log', '$scope', 'auth', 'transaction', function($http, $location, $window, $log, $scope, auth, transaction) {
     this.currentUser = {};
 
     this.signup = function(user) {

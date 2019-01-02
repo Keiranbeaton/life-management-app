@@ -19,7 +19,7 @@ lifeApp.run(['$rootScope', ($rs) => {
 
 require('./controllers')(lifeApp);
 require('./components')(lifeApp);
-// require('./services')(lifeApp);
+require('./services')(lifeApp);
 
 lifeApp.config(['$routeProvider', '$locationProvider', ($rp, $lp) => {
   $lp.hashPrefix('');

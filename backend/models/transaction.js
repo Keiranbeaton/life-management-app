@@ -4,11 +4,7 @@ const mongoose = require('mongoose');
 
 let transactionSchema = mongoose.Schema({
   userId: {type:mongoose.Schema.Types.ObjectId, required: true},
-  date: {
-    day: {type: Number, required: true},
-    month: {type: Number, required: true},
-    year: {type: Number, required: true}
-  },
+  date: {type: Date, required: true},
   time: {
     hours: Number,
     minutes: Number
