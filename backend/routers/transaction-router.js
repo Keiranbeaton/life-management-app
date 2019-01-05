@@ -31,6 +31,14 @@ transactionRouter.get('/:id', function(req, res, next) {
   Transaction.findById(req.params.id).then(trans => res.send(trans)).catch(err => next(createError(400, err.message)));
 });
 
+transactionRouter.get('/:userId', function(req, res, next) {
+  debug('GET /api/transaction/:userId');
+  Transaction.find({userId: req.params.id}).then((trans) => {
+    //Transform transactions into correct format here
+    res.send(trans);
+  }).catch(err => next(createError(400, err.message)));
+})
+
 transactionRouter.put('/:id', jsonParser, function(req, res, next) {
   debug('PUT /api/transaction/:id');
   Transaction.findByIdAndUpdate(req.params.id, req.body, {new: true}).then(trans => res.send(trans)).catch(next);
