@@ -3,6 +3,7 @@
 const mongoose = require('mongoose');
 
 let categorySchema = mongoose.Schema({
+  userId: {type: mongoose.Schema.Types.ObjectId, required: true},
   name: {type: String, required: true},
   subcategories: [{type: mongoose.Schema.Types.ObjectId, ref: 'Subcategory'}]
 });

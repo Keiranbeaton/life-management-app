@@ -3,89 +3,96 @@
 const moment = require('moment');
 moment.format();
 
-module.exports = exports = function(array) {
-  let returnObj = {
-    weeks: {
-      week1: {all: []},
-      week2: {all: []},
-      week3: {all: []},
-      week4: {all: []},
-      week5: {all: []},
-      week6: {all: []},
-      week7: {all: []},
-      week8: {all: []},
-      week9: {all: []},
-      week10: {all: []},
-      week11: {all: []},
-      week12: {all: []}
-    },
-    months: {
-      month1: {all: []},
-      month2: {all: []},
-      month3: {all: []},
-      month4: {all: []},
-      month5: {all: []},
-      month6: {all: []},
-      month7: {all: []},
-      month8: {all: []},
-      month9: {all: []},
-      month10: {all: []},
-      month11: {all: []},
-      month12: {all: []}
+let transactionFormatter = {};
+
+transactionFormatter.sort = function(dateInt, transObj, returnObj) {
+  if(returnObj[dateInt].categoryNames.includes(transObj.category.name)) {
+    let catIndex = returnObj[dateInt].categories.map(function(ele) {return ele.name;}).indexOf(transObj.category.name);
+    if (returnObj[dateInt].categories[catIndex].subcategoryNames.includes(transObj.subcategory.name)) {
+      let subIndex = returnObj[dateInt].categories[catIndex].subcategories.map(function(ele) {return ele.name}).indexOf(transObj.subcategory.name);
+      returnObj[dateInt].categories[catIndex].subcategories[subIndex].push(transObj);
+    } else {
+      returnObj[dateInt].categories[catIndex].subcategoryNames.push(transObj.subcategory.name);
+      returnObj[dateInt].categories[catIndex].subcategories.push({name: transObj.subcategory.name, transactions: []});
+      returnObj[dateInt].categories[catIndex].subcategories[returnObj[dateInt].categories[catIndex].subcategories.length - 1].transactions.push(transObj);
     }
-  };
+  } else {
+    returnObj[dateInt].categoryNames.push(transObj.category.name);
+    returnObj[dateInt].categories.push({name: transObj.category.name, subcategories: []});
+    returnObj[dateInt].categories[returnObj[dateInt].categories.length - 1].subcategoryNames.push(transObj.subcategory.name);
+    returnObj[dateInt].categories[returnObj[dateInt].categories.length - 1].subcategories.push({name: transObj.subcategory.name, transactions: []});
+    returnObj[dateInt].categories[returnObj[dateInt].categories.length - 1].subcategories[0].transactions.push(transObj);
+  }
+}
+transactionFormatter.return = {
+  weeks:[{categoryNames: [], categories: []}, {categoryNames: [], categories: []}, {categoryNames: [], categories: []}, {categoryNames: [], categories: []}, {categoryNames: [], categories: []}, {categoryNames: [], categories: []}, {categoryNames: [], categories: []}, {categoryNames: [], categories: []}, {categoryNames: [], categories: []}, {categoryNames: [], categories: []}, {categoryNames: [], categories: []}, {categoryNames: [], categories: []}],
+  months:[{categoryNames: [], categories: []}, {categoryNames: [], categories: []}, {categoryNames: [], categories: []}, {categoryNames: [], categories: []}, {categoryNames: [], categories: []}, {categoryNames: [], categories: []}, {categoryNames: [], categories: []}, {categoryNames: [], categories: []}, {categoryNames: [], categories: []}, {categoryNames: [], categories: []}, {categoryNames: [], categories: []}, {categoryNames: [], categories: []}]
+};
+
+transactionFormatter.format = function(array) {
   let now = moment();
   let startOfWeek = moment().startOf('week');
 
   array.forEach(function(obj) {
     let transMoment = moment(obj.date);
 
-    if (transMoment.isBetween(now, startOfWeek)) returnObj.weeks.week1.all.push(transMoment);
-    if (transMoment.isBetween(startOfWeek, startOfWeek.subtract(7, 'days'))) returnObj.weeks.week2.all.push(transMoment);
-    if(transMoment.isBetween(startOfWeek.subtract(7, 'days'), startOfWeek.subtract(14, 'days'))) returnObj.weeks.week3.all.push(transMoment);
-    if(transMoment.isBetween(startOfWeek.subtract(14, 'days'), startOfWeek.subtract(21, 'days'))) returnObj.weeks.week4.all.push(transMoment);
-    if(transMoment.isBetween(startOfWeek.subtract(21, 'days'), startOfWeek.subtract(28, 'days'))) returnObj.weeks.week5.all.push(transMoment);
-    if(transMoment.isBetween(startOfWeek.subtract(28, 'days'), startOfWeek.subtract(35, 'days'))) returnObj.weeks.week6.all.push(transMoment);
-    if(transMoment.isBetween(startOfWeek.subtract(35, 'days'), startOfWeek.subtract(42, 'days'))) returnObj.weeks.week7.all.push(transMoment);
-    if(transMoment.isBetween(startOfWeek.subtract(42, 'days'), startOfWeek.subtract(49, 'days'))) returnObj.weeks.week8.all.push(transMoment);
-    if(transMoment.isBetween(startOfWeek.subtract(49, 'days'), startOfWeek.subtract(56, 'days'))) returnObj.weeks.week9.all.push(transMoment);
-    if(transMoment.isBetween(startOfWeek.subtract(56, 'days'), startOfWeek.subtract(63, 'days'))) returnObj.weeks.week10.all.push(transMoment);
-    if(transMoment.isBetween(startOfWeek.subtract(63, 'days'), startOfWeek.subtract(70, 'days'))) returnObj.weeks.week11.all.push(transMoment);
-    if(transMoment.isBetween(startOfWeek.subtract(70, 'days'), startOfWeek.subtract(77, 'days'))) returnObj.weeks.week12.all.push(transMoment);
-
-    if(transMoment.month() === now.month() && transMoment.year() === now.year()) returnObj.months.month1.all.push(transMoment);
-    if(transMoment.month() === now.subtract(1, 'month').month() && transMoment.year() === now.subtract(1, 'month').year()) returnObj.months.month2.all.push(transMoment);
-    if(transMoment.month() === now.subtract(2, 'month').month() && transMoment.year() === now.subtract(2, 'month').year()) returnObj.months.month3.all.push(transMoment);
-    if(transMoment.month() === now.subtract(3, 'month').month() && transMoment.year() === now.subtract(3, 'month').year()) returnObj.months.month4.all.push(transMoment);
-    if(transMoment.month() === now.subtract(4, 'month').month() && transMoment.year() === now.subtract(4, 'month').year()) returnObj.months.month5.all.push(transMoment);
-    if(transMoment.month() === now.subtract(5, 'month').month() && transMoment.year() === now.subtract(5, 'month').year()) returnObj.months.month6.all.push(transMoment);
-    if(transMoment.month() === now.subtract(6, 'month').month() && transMoment.year() === now.subtract(6, 'month').year()) returnObj.months.month7.all.push(transMoment);
-    if(transMoment.month() === now.subtract(7, 'month').month() && transMoment.year() === now.subtract(7, 'month').year()) returnObj.months.month8.all.push(transMoment);
-    if(transMoment.month() === now.subtract(8, 'month').month() && transMoment.year() === now.subtract(8, 'month').year()) returnObj.months.month9.all.push(transMoment);
-    if(transMoment.month() === now.subtract(9, 'month').month() && transMoment.year() === now.subtract(9, 'month').year()) returnObj.months.month10.all.push(transMoment);
-    if(transMoment.month() === now.subtract(10, 'month').month() && transMoment.year() === now.subtract(10, 'month').year()) returnObj.months.month11.all.push(transMoment);
-    if(transMoment.month() === now.subtract(11, 'month').month() && transMoment.year() === now.subtract(11, 'month').year()) returnObj.months.month12.all.push(transMoment);
-  });
-
-  returnObj.weeks.week1.forEach(function(obj) {
-    if (Object.keys(returnObj.weeks.week1).includes(obj.category.name)) {
-      returnObj.weeks.week1[obj.category.name].all.push(obj);
-      if(obj.subcategory) {
-        if(Object.keys(returnObj.weeks.week1[obj.category]).includes(obj.subcategory.name)) {
-          returnObj.weeks.week1[obj.category.name][obj.subcategory.name].all.push(obj);
-        } else {
-          returnObj.weeks.week1[obj.category.name][obj.subcategory.name] = {all: []};
-          returnObj.weeks.week1[obj.category.name][obj.subcategory.name].all.push(obj);
-        }
-      }
+    if(transMoment.isBetween(now, startOfWeek)) {
+      transactionFormatter.sort(0, obj, transactionFormatter.return.weeks);
+    } else if (transMoment.isBetween(startOfWeek, startOfWeek.subtract(7, 'd'))) {
+      transactionFormatter.sort(1, obj, transactionFormatter.return.weeks);
+    } else if (transMoment.isBetween(startOfWeek.subtract(7, 'd'), startOfWeek.subtract(14, 'd'))) {
+      transactionFormatter.sort(2, obj, transactionFormatter.return.weeks);
+    } else if (transMoment.isBetween(startOfWeek.subtract(14, 'd'), startOfWeek.subtract(21, 'd'))) {
+      transactionFormatter.sort(3, obj, transactionFormatter.return.weeks);
+    } else if (transMoment.isBetween(startOfWeek.subtract(21, 'd'), startOfWeek.subtract(28, 'd'))) {
+      transactionFormatter.sort(4, obj, transactionFormatter.return.weeks);
+    } else if (transMoment.isBetween(startOfWeek.subtract(28, 'd'), startOfWeek.subtract(35, 'd'))) {
+      transactionFormatter.sort(5, obj, transactionFormatter.return.weeks);
+    } else if (transMoment.isBetween(startOfWeek.subtract(35, 'd'), startOfWeek.subtract(42, 'd'))) {
+      transactionFormatter.sort(6, obj, transactionFormatter.return.weeks);
+    } else if (transMoment.isBetween(startOfWeek.subtract(42, 'd'), startOfWeek.subtract(49, 'd'))) {
+      transactionFormatter.sort(7, obj, transactionFormatter.return.weeks);
+    } else if (transMoment.isBetween(startOfWeek.subtract(49, 'd'), startOfWeek.subtract(56, 'd'))) {
+      transactionFormatter.sort(8, obj, transactionFormatter.return.weeks);
+    } else if (transMoment.isBetween(startOfWeek.subtract(56, 'd'), startOfWeek.subtract(63, 'd'))) {
+      transactionFormatter.sort(9, obj, transactionFormatter.return.weeks);
+    } else if (transMoment.isBetween(startOfWeek.subtract(63, 'd'), startOfWeek.subtract(70, 'd'))) {
+      transactionFormatter.sort(10, obj, transactionFormatter.return.weeks);
+    } else if (transMoment.isBetween(startOfWeek.subtract(70, 'd'), startOfWeek.subtract(77, 'd'))) {
+      transactionFormatter.sort(11, obj, transactionFormatter.return.weeks);
     } else {
-      returnObj.weeks.week1[obj.category.name] = {all: []};
-      returnObj.weeks.week1[obj.category.name].all.push(obj);
-      if(obj.subcategory) {
-        returnObj.weeks.week1[obj.category.name][obj.subcategory.name] = {all: []};
-        returnObj.weeks.week1[obj.category.name][obj.subcategory.name].all.push(obj);
-      }
+      console.log('');
+    }
+
+    if (transMoment.month() === now.month() && transMoment.year() === now.year()) {
+      transactionFormatter.sort(0, obj, transactionFormatter.return.months);
+    } else if (transMoment.month() === now.subtract(1, 'M').month() && transMoment.year() === now.subtract(1, 'M').year()) {
+      transactionFormatter.sort(1, obj, transactionFormatter.return.months);
+    } else if (transMoment.month() === now.subtract(2, 'M').month() && transMoment.year() === now.subtract(2, 'M').year()) {
+      transactionFormatter.sort(2, obj, transactionFormatter.return.months);
+    } else if (transMoment.month() === now.subtract(3, 'M').month() && transMoment.year() === now.subtract(3, 'M').year()) {
+      transactionFormatter.sort(3, obj, transactionFormatter.return.months);
+    } else if (transMoment.month() === now.subtract(4, 'M').month() && transMoment.year() === now.subtract(4, 'M').year()) {
+      transactionFormatter.sort(4, obj, transactionFormatter.return.months);
+    } else if (transMoment.month() === now.subtract(5, 'M').month() && transMoment.year() === now.subtract(5, 'M').year()) {
+      transactionFormatter.sort(5, obj, transactionFormatter.return.months);
+    } else if (transMoment.month() === now.subtract(6, 'M').month() && transMoment.year() === now.subtract(6, 'M').year()) {
+      transactionFormatter.sort(6, obj, transactionFormatter.return.months);
+    } else if (transMoment.month() === now.subtract(7, 'M').month() && transMoment.year() === now.subtract(7, 'M').year()) {
+      transactionFormatter.sort(7, obj, transactionFormatter.return.months);
+    } else if (transMoment.month() === now.subtract(8, 'M').month() && transMoment.year() === now.subtract(8, 'M').year()) {
+      transactionFormatter.sort(8, obj, transactionFormatter.return.months);
+    } else if (transMoment.month() === now.subtract(9, 'M').month() && transMoment.year() === now.subtract(9, 'M').year()) {
+      transactionFormatter.sort(9, obj, transactionFormatter.return.months);
+    } else if (transMoment.month() === now.subtract(10, 'M').month() && transMoment.year() === now.subtract(10, 'M').year()) {
+      transactionFormatter.sort(10, obj, transactionFormatter.return.months);
+    } else if (transMoment.month() === now.subtract(11, 'M').month() && transMoment.year() === now.subtract(11, 'M').year()) {
+      transactionFormatter.sort(11, obj, transactionFormatter.return.months);
+    } else {
+      console.log('');
     }
   });
-  return returnObj;
-};
+
+  return transactionFormatter.return;
+}
+module.exports = exports = transactionFormatter;
