@@ -39,6 +39,15 @@ subcategoryRouter.put('/:id', jsonParser, function(req, res, next) {
     .then(sub => res.send(sub)).catch(next);
 });
 
-// subcategoryRouter.delete('/:id', function(req, res, next) {
-//   debug('DELETE /api/subcategory/:id');
-// });
+subcategoryRouter.delete('/:id', function(req, res, next) {
+   debug('DELETE /api/subcategory/:id');
+   Subcategory.findById(req.params.id)
+    .then(sub => {
+      return User.findById(sub.userId);
+    })
+    .then(user => {
+      return user.removeSubcategoryById(req.params.id);
+    })
+    .then(sub => res.json(sub))
+    .catch(next);
+});

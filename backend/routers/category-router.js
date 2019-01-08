@@ -34,6 +34,15 @@ categoryRouter.put(':/id', jsonParser, function(req, res, next) {
     .then(cat => res.send(cat)).catch(next);
 });
 
-// categoryRouter.delete('/:id', function(req, res, next) {
-//   debug('DELETE /api/category/:id');
-// });
+categoryRouter.delete('/:id', function(req, res, next) {
+  debug('DELETE /api/category/:id');
+  Category.findById(req.params.id)
+    .then(cat => {
+      return User.findById(cat.userId);
+    })
+    .then(user => {
+      return user.removeCategoryById(req.params.id);
+    })
+    .then(cat => res.json(cat))
+    .catch(next);
+});

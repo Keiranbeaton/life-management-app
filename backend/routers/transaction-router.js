@@ -7,6 +7,7 @@ const debug = require('debug')('transactionRouter');
 
 const Transaction = require('../models/transaction');
 const User = require('../models/user');
+const transactionFormatter = require('../lib/transaction-format');
 
 let transactionRouter = module.exports = exports = new Router();
 
@@ -34,8 +35,8 @@ transactionRouter.get('/:id', function(req, res, next) {
 transactionRouter.get('/:userId', function(req, res, next) {
   debug('GET /api/transaction/:userId');
   Transaction.find({userId: req.params.id}).then((trans) => {
-    //Transform transactions into correct format here
-    res.send(trans);
+    let formatted = transactionFormatter.format(trans);
+    res.send(formatted);
   }).catch(err => next(createError(400, err.message)));
 })
 
@@ -44,6 +45,15 @@ transactionRouter.put('/:id', jsonParser, function(req, res, next) {
   Transaction.findByIdAndUpdate(req.params.id, req.body, {new: true}).then(trans => res.send(trans)).catch(next);
 });
 
-// transactionRouter.delete('/:id', function(req, res, next) {
-//   debug('DELETE /api/transaction/:id');
-// });
+transactionRouter.delete('/:id', function(req, res, next) {
+  debug('DELETE /api/transaction/:id');
+  Transaction.findById(req.params.id)
+    .then(trans => {
+      return User.findById(trans.userId);
+    })
+    .then(user => {
+      return user.removeTransactionById(req.params.id);
+    })
+    .then(trans => res.json(trans))
+    .catch(next);
+});

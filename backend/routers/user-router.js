@@ -4,10 +4,10 @@ const Router = require('express').Router;
 const jsonParser = require('body-parser').json();
 const createError = require('http-errors');
 const User = require('../models/user');
-// const Vendor = require('../model/vendor');
+const Vendor = require('../model/vendor');
 const Transaction = require('../models/transaction');
-// const Category = require('../model/category');
-// const Subcategory = require('../model/subcategory');
+const Category = require('../model/category');
+const Subcategory = require('../model/subcategory');
 const debug = require('debug')('userRouter');
 
 let userRouter = module.exports = exports = Router();
@@ -42,6 +42,9 @@ userRouter.delete('/:id', (req, res, next) => {
     .then(user => {
       result = user;
       Transaction.remove({userId: user._id});
+      Vendor.remove({userId: user._id});
+      Category.remove({userId: user._id});
+      Subcategory.remove({userId: user._id});
     })
     .then(() => {
       res.json(result);
