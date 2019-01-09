@@ -26,7 +26,7 @@ transactionFormatter.sort = function(dateInt, transObj, returnObj) {
 }
 transactionFormatter.return = {
   weeks:[{categoryNames: [], categories: []}, {categoryNames: [], categories: []}, {categoryNames: [], categories: []}, {categoryNames: [], categories: []}, {categoryNames: [], categories: []}, {categoryNames: [], categories: []}, {categoryNames: [], categories: []}, {categoryNames: [], categories: []}, {categoryNames: [], categories: []}, {categoryNames: [], categories: []}, {categoryNames: [], categories: []}, {categoryNames: [], categories: []}],
-  months:[{categoryNames: [], categories: []}, {categoryNames: [], categories: []}, {categoryNames: [], categories: []}, {categoryNames: [], categories: []}, {categoryNames: [], categories: []}, {categoryNames: [], categories: []}, {categoryNames: [], categories: []}, {categoryNames: [], categories: []}, {categoryNames: [], categories: []}, {categoryNames: [], categories: []}, {categoryNames: [], categories: []}, {categoryNames: [], categories: []}]
+  months:[{categoryNames: [], categories: []}, {categoryNames: [], categories: []}, {categoryNames: [], categories: []}, {categoryNames: [], categories: []}, {categoryNames: [], categories: []}, {categoryNames: [], categories: []}, {categoryNames: [], categories: []}, {categoryNames: [], categories: []}, {categoryNames: [], categories: []}, {categoryNames: [], categories: []}, {categoryNames: [], categories: []}, {categoryNames: [], categories: []}, {categoryNames: [], categories: []}]
 };
 
 transactionFormatter.format = function(array) {
@@ -88,6 +88,8 @@ transactionFormatter.format = function(array) {
       transactionFormatter.sort(10, obj, transactionFormatter.return.months);
     } else if (transMoment.month() === now.subtract(11, 'M').month() && transMoment.year() === now.subtract(11, 'M').year()) {
       transactionFormatter.sort(11, obj, transactionFormatter.return.months);
+    } else if (transMoment.month() === now.subtract(12, 'M').month() && transMoment.year() === now.subtract(12, 'M').year()) {
+      transactionFormatter.sort(12, obj, transactionFormatter.return.months);
     } else {
       console.log('');
     }

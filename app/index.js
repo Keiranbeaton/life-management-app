@@ -5,7 +5,9 @@ require('./scss/base.scss');
 
 const angular = require('angular');
 const angularRoute = require('angularRoute');
-const lifeApp = angular.module('lifeApp', [angularRoute]);
+const angularMoment = require('angular-moment');
+const lifeApp = angular.module('lifeApp', [angularRoute, angularMoment]);
+lifeApp.constant('moment', require('moment-timezone'));
 
 lifeApp.run(['$rootScope', ($rs) => {
   $rs.baseUrl = `${__API_URL__}/api`;
