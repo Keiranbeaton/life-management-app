@@ -29,6 +29,18 @@ lifeApp.config(['$routeProvider', '$locationProvider', ($rp, $lp) => {
     .when('/home', {
       template: require('./html/home.html')
     })
+    .when('/spending', {
+      template: require('./html/spending.html')
+    })
+    .when('/signup', {
+      template: require('./html/signup.html')
+    })
+    .when('/login', {
+      template: require('./html/login.html')
+    })
+    .when('/logout', {
+      template: require('./html/logout.html')
+    })
     .otherwise({
       redirectTo: '/home'
     });

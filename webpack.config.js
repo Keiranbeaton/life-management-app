@@ -29,7 +29,20 @@ module.exports = {
     rules: [
       {
         test: /\.scss$/,
-        use: ExtractText.extract({fallback:'style-loader', use: ['css-loader', 'sass-loader']})
+        use: ExtractText.extract({
+          fallback:'style-loader',
+          use: [
+            {
+              loader: 'css-loader'
+            },
+            {
+              loader: 'sass-loader',
+              options: {
+                includePaths: [
+                  `${__dirname}/app/styles/lib`
+                ]
+              }
+            }]})
       },
       {
         test: /\.js$/,

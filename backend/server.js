@@ -7,6 +7,14 @@ const Promise = require('bluebird');
 const createError = require('http-errors');
 const debug = require('debug')('server');
 const cors = require('cors');
+const morgan = require('morgan');
+
+const authRouter = require('./routers/auth-router');
+const categoryRouter = require('./routers/category-router');
+const subcategoryRouter = require('./routers/subcategroy-router');
+const userRouter = require('./routers/user-router');
+const vendorRouter = require('./routers/vendor-router');
+const transactionRouter = require('./routers/transaction-router');
 
 process.env.APP_SECRET = 'dev';
 const port = process.env.PORT || 3000;
@@ -17,7 +25,15 @@ mongoose.connect(mongoDbUri);
 
 app.use(express.static(`${__dirname}/build`));
 
+app.use(morgan('dev'));
 app.use(cors());
+
+app.use('/api', authRouter);
+app.use('/api/user', userRouter);
+app.use('/api/category', categoryRouter);
+app.use('/api/subcategory', subcategoryRouter);
+app.use('/api/vendor', vendorRouter);
+app.use('/api/transaction', transactionRouter);
 
 app.all('*', function(req, res, next) {
   debug('app.all 404 route');

@@ -1,7 +1,7 @@
-<div class="kb-container">
-  <h3>Hi, User. What would you like to keep track of today?</h3>
+<div class="kb-container" ng-init="$ctrl.checkNoUser()">
+  <h3>Hi, {{$ctrl.user.name.first}}. What would you like to keep track of today?</h3>
   <ul>
-    <li>Spending</li>
+    <a href="#/spending"><li>Spending</li></a>
     <li>TBD</li>
   </ul>
 </div>
