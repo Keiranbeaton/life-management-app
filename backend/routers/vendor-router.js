@@ -33,6 +33,13 @@ vendorRouter.get('/:id', function(req, res, next) {
     .catch(err => next(createError(404, err.message)));
 });
 
+vendorRouter.get('/user/:userId', function(req, res, next) {
+  debug('GET /api/vendor/user/:userId');
+  Vendor.find({userId: req.params.userId})
+    .then(vendor => res.send(vendor))
+    .catch(err => next(createError(404, err.message)));
+})
+
 vendorRouter.put('/:id', jsonParser, function(req, res, next) {
   debug('PUT /api/vendor/:id');
   Vendor.findByIdAndUpdate(req.params.id, req.body, {new:true})

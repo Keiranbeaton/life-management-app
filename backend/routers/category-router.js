@@ -28,6 +28,12 @@ categoryRouter.get('/:id', function(req, res, next) {
     .then(cat => res.send(cat)).catch(err => next(createError(404, err.message)));
 });
 
+categoryRouter.get('/:id', function(req, res, next) {
+  debug('GET /api/category/user/:userId');
+  Category.find({userId: req.params.userId})
+    .then(cat => res.send(cat)).catch(err => next(createError(404, err.message)));
+});
+
 categoryRouter.put(':/id', jsonParser, function(req, res, next) {
   debug('PUT /api/category/:id');
   Category.findByIdAndUpdate(req.params.id, req.body, {new: true})

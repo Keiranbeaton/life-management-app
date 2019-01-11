@@ -32,9 +32,9 @@ transactionRouter.get('/:id', function(req, res, next) {
   Transaction.findById(req.params.id).then(trans => res.send(trans)).catch(err => next(createError(400, err.message)));
 });
 
-transactionRouter.get('/:userId', function(req, res, next) {
-  debug('GET /api/transaction/:userId');
-  Transaction.find({userId: req.params.id}).then((trans) => {
+transactionRouter.get('/user/:userId', function(req, res, next) {
+  debug('GET /api/transaction/user/:userId');
+  Transaction.find({userId: req.params.userId}).then((trans) => {
     let formatted = transactionFormatter.format(trans);
     res.send(formatted);
   }).catch(err => next(createError(400, err.message)));

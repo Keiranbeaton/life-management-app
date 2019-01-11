@@ -33,6 +33,12 @@ subcategoryRouter.get('/:id', function(req, res, next) {
     .then(sub => res.send(sub)).catch(err => next(createError(404, err.message)));
 });
 
+subcategoryRouter.get('/user/:userId', function(req, res, next) {
+  debug('GET /api/subcategory/user/:userId');
+  Subcategory.find({userId: req.params.userId})
+    .then(sub => res.send(sub)).catch(err => next(createError(404, err.message)));
+});
+
 subcategoryRouter.put('/:id', jsonParser, function(req, res, next) {
   debug('PUT /api/subcategory/:id');
   Subcategory.findByIdAndUpdate(req.params.id, req.body, {new: true})
