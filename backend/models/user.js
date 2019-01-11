@@ -79,9 +79,15 @@ userSchema.methods.addTransaction = function(data) {
   let result;
   return new Promise((resolve, reject) => {
     if (!data.date.day || !data.date.month || !data.date.year) return reject(createError(400, 'Transactions require a date'));
+    console.log('past first');
     if (!data.amount) return reject(createError(400, 'Transactions require an amount'));
+    console.log('second');
     if (!data.vendor) return reject(createError(400, 'Transactions require a vendor'));
+    console.log('third');
     if (!data.category) return reject(createError(400, 'Transactions require a category'));
+    console.log('fourth');
+    if (!data.subcategory) return reject(createError(400, 'Transactions require a subcategory'));
+    console.log('fifth');
     new Transaction(data).save()
       .then(trans => {
         result = trans;

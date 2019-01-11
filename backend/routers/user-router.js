@@ -4,10 +4,10 @@ const Router = require('express').Router;
 const jsonParser = require('body-parser').json();
 const createError = require('http-errors');
 const User = require('../models/user');
-const Vendor = require('../model/vendor');
+const Vendor = require('../models/vendor');
 const Transaction = require('../models/transaction');
-const Category = require('../model/category');
-const Subcategory = require('../model/subcategory');
+const Category = require('../models/category');
+const Subcategory = require('../models/subcategory');
 const debug = require('debug')('userRouter');
 
 let userRouter = module.exports = exports = Router();

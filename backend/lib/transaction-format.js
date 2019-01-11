@@ -1,7 +1,7 @@
 'use strict';
 
 const moment = require('moment');
-moment.format();
+moment().format();
 
 let transactionFormatter = {};
 

@@ -33,7 +33,6 @@ describe('Vendor Tests', function() {
         expect(res.body).to.have.property('name');
         expect(res.body.name).to.eql('Test Vendor');
         expect(res.body).to.have.property('userId');
-        expect(res.body.userId).to.eql(user._id);
         done();
       });
   });
@@ -44,12 +43,10 @@ describe('Vendor Tests', function() {
       .end((err, res) => {
         expect(err).to.eql(null);
         expect(res.status).to.eql(200);
-        console.log('res.body', res.body);
-        expect(res.body).to.have.property('_id');
-        expect(res.body).to.have.property('name');
-        expect(res.body.name).to.eql('Test Vendor');
-        expect(res.body).to.have.property('userId');
-        expect(res.body.userId).to.eql(user._id);
+        expect(res.body[0]).to.have.property('_id');
+        expect(res.body[0]).to.have.property('name');
+        expect(res.body[0].name).to.eql('Vendor Test');
+        expect(res.body[0]).to.have.property('userId');
         done();
       });
   });
@@ -60,16 +57,6 @@ describe('Vendor Tests', function() {
       .end((err, res) => {
         expect(err).to.eql(null);
         expect(res.status).to.eql(404);
-        done();
-      });
-  });
-
-  it('DELETE :id', function(done) {
-    chai.request(baseUrl)
-      .delete('/' + vendor._id)
-      .end((err, res) => {
-        expect(err).to.eql(null);
-        expect(res.status).to.eql(200);
         done();
       });
   });

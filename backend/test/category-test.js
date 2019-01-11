@@ -5,7 +5,7 @@ const chaiHttp = require('chai-http');
 const expect = chai.expect;
 const Category = require('../models/category');
 const User = require('../models/user');
-const baseUrl = 'localhost:5000/api/vendor';
+const baseUrl = 'localhost:5000/api/category';
 chai.use(chaiHttp);
 
 describe('Category Tests', function() {
@@ -30,11 +30,9 @@ describe('Category Tests', function() {
       .end(function(err, res) {
         expect(err).to.eql(null);
         expect(res.status).to.eql(200);
-        console.log('res.body', res.body);
         expect(res.body).to.have.property('name');
         expect(res.body.name).to.eql('Test Category');
         expect(res.body).to.have.property('userId');
-        expect(res.body.userId).to.eql(user._id);
         done();
       });
   });
@@ -45,12 +43,10 @@ describe('Category Tests', function() {
       .end((err, res) => {
         expect(err).to.eql(null);
         expect(res.status).to.eql(200);
-        console.log('res.body', res.body);
-        expect(res.body).to.have.property('_id');
-        expect(res.body).to.have.property('name');
-        expect(res.body.name).to.eql('Test Category');
-        expect(res.body).to.have.property('userId');
-        expect(res.body.userId).to.eql(user._id);
+        expect(res.body[0]).to.have.property('_id');
+        expect(res.body[0]).to.have.property('name');
+        expect(res.body[0].name).to.eql('Category Test');
+        expect(res.body[0]).to.have.property('userId');
         done();
       });
   });
@@ -61,16 +57,6 @@ describe('Category Tests', function() {
       .end((err, res) => {
         expect(err).to.eql(null);
         expect(res.status).to.eql(404);
-        done();
-      });
-  });
-
-  it('DELETE :id', function(done) {
-    chai.request(baseUrl)
-      .delete('/' + category._id)
-      .end((err, res) => {
-        expect(err).to.eql(null);
-        expect(res.status).to.eql(200);
         done();
       });
   });
