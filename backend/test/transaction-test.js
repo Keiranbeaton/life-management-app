@@ -70,10 +70,10 @@ describe('Transaction Tests', function() {
       .get('/user/' + user._id)
       .end((err, res) => {
         expect(err).to.eql(null);
+        console.log('res.body', res.body);
         expect(res.status).to.eql(200);
         expect(res.body[0]).to.have.property('_id');
         expect(res.body[0]).to.have.property('userId');
-        console.log('res.body[0]', res.body[0]);
         expect(res.body[0]).to.have.property('vendor');
         expect(res.body[0]).to.have.property('amount');
         expect(res.body[0]).to.have.property('category');
@@ -89,7 +89,7 @@ describe('Transaction Tests', function() {
       .get('/user/badid')
       .end((err, res) => {
         expect(err).to.eql(null);
-        expect(res.status).to.eql(404);
+        expect(res.status).to.eql(400);
         done();
       });
   });
