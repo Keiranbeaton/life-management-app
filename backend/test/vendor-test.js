@@ -60,4 +60,14 @@ describe('Vendor Tests', function() {
         done();
       });
   });
+
+  it('DELETE vendor', function(done) {
+    chai.request(baseUrl)
+      .delete('/' + vendor._id)
+      .end((err, res) => {
+        expect(err).to.eql(null);
+        expect(res.status).to.eql(200);
+        done();
+      });
+  });
 });

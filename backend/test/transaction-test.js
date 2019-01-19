@@ -112,4 +112,14 @@ describe('Transaction Tests', function() {
         done();
       });
   });
+
+  it('DELETE transaction', function(done) {
+    chai.request(baseUrl)
+      .delete('/' + transaction._id)
+      .end((err, res) => {
+        expect(err).to.eql(null);
+        expect(res.status).to.eql(200);
+        done();
+      });
+  });
 });

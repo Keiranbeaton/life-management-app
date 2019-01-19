@@ -67,4 +67,14 @@ describe('Subcategory Tests', function() {
         done();
       });
   });
+
+  it('DELETE subcategory', function(done) {
+    chai.request(baseUrl)
+      .delete('/' + subcategory._id)
+      .end((err, res) => {
+        expect(err).to.eql(null);
+        expect(res.status).to.eql(200);
+        done();
+      });
+  });
 });

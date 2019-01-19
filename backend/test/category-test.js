@@ -60,4 +60,14 @@ describe('Category Tests', function() {
         done();
       });
   });
+
+  it('DELETE category', function(done) {
+    chai.request(baseUrl)
+      .delete('/' + category._id)
+      .end((err, res) => {
+        expect(err).to.eql(null);
+        expect(res.status).to.eql(200);
+        done();
+      });
+  });
 });
