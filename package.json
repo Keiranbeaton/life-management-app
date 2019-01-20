@@ -7,7 +7,7 @@
     "test": "mocha ./backend/test/test-harness.js",
     "watch": "node ./node_modules/webpack-dev-server/bin/webpack-dev-server.js",
     "start": "node ./backend/server.js",
-    "windowsDebug": "@powershell -Command $env:DEBUG='*'; node ./backend/server.js"
+    "windowsDebug": "@powershell -Command $env:DEBUG='server,authRouter,categoryRouter,subcategoryRouter,transactionRouter,userRouter,vendorRouter'; node ./backend/server.js"
   },
   "repository": {
     "type": "git",
