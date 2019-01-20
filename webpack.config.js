@@ -2,12 +2,14 @@
 
 const webpack = require('webpack');
 const autoprefixer = require('autoprefixer');
-const ExtractText = require('extract-text-webpack-plugin');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
 const API_URL = JSON.stringify(process.env.API_URL || 'http://localhost:3000');
 
 var plugins = [
-  new ExtractText('bundle.css'),
+  new MiniCssExtractPlugin({
+    filename: 'bundle.css'
+  }),
   new webpack.DefinePlugin({
     __API_URL__: API_URL,
   }),
@@ -19,7 +21,7 @@ var plugins = [
 ];
 
 module.exports = {
-  entry: `${__dirname}/build`,
+  entry: `${__dirname}/app`,
   plugins: plugins,
   output: {
     path: `${__dirname}/build`,
@@ -29,20 +31,17 @@ module.exports = {
     rules: [
       {
         test: /\.scss$/,
-        use: ExtractText.extract({
-          fallback:'style-loader',
-          use: [
-            {
-              loader: 'css-loader'
-            },
-            {
-              loader: 'sass-loader',
-              options: {
-                includePaths: [
-                  `${__dirname}/app/styles/lib`
-                ]
-              }
-            }]})
+        use: [
+          MiniCssExtractPlugin.loader,
+          'css-loader',
+          'postcss-loader',
+          {
+            loader: 'sass-loader',
+            options: {
+              includePaths: [`${__dirname}/app/styles/lib`]
+            }
+          }
+        ]
       },
       {
         test: /\.js$/,
@@ -50,7 +49,7 @@ module.exports = {
           {
             loader: 'babel-loader',
             options: {
-              presets: ['env']
+              presets: ['@babel/preset-env']
             }
           }
         ],

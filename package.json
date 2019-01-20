@@ -6,8 +6,8 @@
   "scripts": {
     "test": "mocha ./backend/test/test-harness.js",
     "watch": "node ./node_modules/webpack-dev-server/bin/webpack-dev-server.js",
-    "start": "node server.js",
-    "windowsDebug": "@powershell -Command $env:DEBUG='*'; node server.js"
+    "start": "node ./backend/server.js",
+    "windowsDebug": "@powershell -Command $env:DEBUG='*'; node ./backend/server.js"
   },
   "repository": {
     "type": "git",
@@ -21,14 +21,14 @@
   },
   "homepage": "https://github.com/Keiranbeaton/life-management-app#readme",
   "dependencies": {
+    "@babel/core": "^7.2.2",
+    "@babel/preset-env": "^7.2.3",
     "angular": "^1.7.5",
     "angular-jwt": "^0.1.10",
     "angular-moment": "^1.3.0",
     "angular-route": "^1.7.5",
     "autoprefixer": "^9.4.3",
-    "babel-core": "^6.26.3",
     "babel-loader": "^8.0.4",
-    "babel-preset-env": "^1.7.0",
     "bcrypt": "^3.0.2",
     "bluebird": "^3.5.3",
     "body-parser": "^1.18.3",
@@ -42,16 +42,19 @@
     "html-loader": "^0.5.5",
     "http-errors": "^1.7.1",
     "jsonwebtoken": "^8.4.0",
+    "mini-css-extract-plugin": "^0.5.0",
     "moment": "^2.23.0",
     "moment-timezone": "^0.5.23",
     "mongoose": "^5.4.0",
     "morgan": "^1.9.1",
     "node-sass": "^4.11.0",
     "postcss-loader": "^3.0.0",
+    "postcss-scss": "^2.0.0",
     "sass-loader": "^7.1.0",
     "style-loader": "^0.23.1",
     "url-loader": "^1.1.2",
-    "webpack": "^4.27.1"
+    "webpack": "^4.27.1",
+    "webpack-cli": "^3.2.1"
   },
   "devDependencies": {
     "angular-mocks": "^1.7.5",

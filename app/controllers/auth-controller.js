@@ -6,7 +6,7 @@ module.exports = function(app) {
     this.currentUser = {};
 
     this.signup = function(user) {
-      $log.log('AuthController.signup()');
+      $log.debug('AuthController.signup()');
       $http.post(this.baseUrl + '/signup', user)
         .then((res) => {
           auth.setToken(res.data);
@@ -17,7 +17,7 @@ module.exports = function(app) {
         });
     };
     this.login = function(user) {
-      $log.log('AuthController.login()');
+      $log.debug('AuthController.login()');
       $http.get(this.baseUrl + '/signin')
         .then((res) => {
           auth.setToken(res.data);
@@ -28,23 +28,25 @@ module.exports = function(app) {
         });
     };
     this.logout = function() {
-      $log.log('AuthController.logout()');
+      $log.debug('AuthController.logout()');
       auth.logOut();
       this.currentUser = auth.currentUser;
       $location.path('/login');
     }
 
     this.checkUser = function() {
-      $log.log('AuthController.checkUser()');
+      $log.debug('AuthController.checkUser()');
       let user = this.getUser();
-      if(user.username !== 'none') {
+      $log.log('user.username', user.username);
+      if(user.username !== 'none' && user.username !== undefined) {
         $location.path('logout');
       }
     }
     this.checkNoUser = function() {
-      $log.log('AuthController.checkNoUser()');
+      $log.debug('AuthController.checkNoUser()');
       let user = this.getUser();
-      if(user.username === 'none') {
+      $log.log('user.username', user.username);
+      if(user.username === 'none' || user.username === undefined) {
         $location.path('/login');
       }
     }

@@ -1,12 +1,13 @@
 'use strict';
 
 require('!!file-loader?name=[name].[ext]!./html/index.html');
-require('./scss/base.scss');
+require('./styles/base.scss');
 
 const angular = require('angular');
-const angularRoute = require('angularRoute');
+const angularRoute = require('angular-route');
+const angularJWT = require('angular-jwt');
 const angularMoment = require('angular-moment');
-const lifeApp = angular.module('lifeApp', [angularRoute, angularMoment]);
+const lifeApp = angular.module('lifeApp', [angularRoute, angularMoment, angularJWT]);
 lifeApp.constant('moment', require('moment-timezone'));
 
 lifeApp.run(['$rootScope', ($rs) => {
@@ -42,6 +43,6 @@ lifeApp.config(['$routeProvider', '$locationProvider', ($rp, $lp) => {
       template: require('./html/logout.html')
     })
     .otherwise({
-      redirectTo: '/home'
+      redirectTo: '/login'
     });
 }]);

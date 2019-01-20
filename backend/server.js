@@ -11,7 +11,7 @@ const morgan = require('morgan');
 
 const authRouter = require('./routers/auth-router');
 const categoryRouter = require('./routers/category-router');
-const subcategoryRouter = require('./routers/subcategroy-router');
+const subcategoryRouter = require('./routers/subcategory-router');
 const userRouter = require('./routers/user-router');
 const vendorRouter = require('./routers/vendor-router');
 const transactionRouter = require('./routers/transaction-router');
