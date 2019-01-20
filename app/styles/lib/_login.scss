@@ -1,3 +1,16 @@
+form.kb-login-form {
+  padding: 5px 5%;
+  div.kb-form-group {
+    margin-bottom: 5px;
+    input {
+      display: inline-block;
+    }
+  }
+  button.kb-button {
+    width: 100%;
+  }
+}
+
 @media (min-width: 640px) {
 
 }

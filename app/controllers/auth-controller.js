@@ -16,6 +16,7 @@ module.exports = function(app) {
           $log.error('Error in AuthController.signup: ', err);
         });
     };
+    
     this.login = function(user) {
       $log.debug('AuthController.login()');
       $http.get(this.baseUrl + '/signin')
@@ -27,6 +28,7 @@ module.exports = function(app) {
           $log.error('Error in AuthController.login: ', err);
         });
     };
+
     this.logout = function() {
       $log.debug('AuthController.logout()');
       auth.logOut();
