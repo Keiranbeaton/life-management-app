@@ -2,8 +2,16 @@ form.kb-login-form {
   padding: 5px 5%;
   div.kb-form-group {
     margin-bottom: 5px;
+    border-style: outset;
+    border-radius: 5px;
+    i {
+      height: 5%;
+      width: 5%;
+    }
     input {
       display: inline-block;
+      width: 90%;
+      border-style: none;
     }
   }
   button.kb-button {

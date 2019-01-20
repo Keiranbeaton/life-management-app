@@ -72,16 +72,12 @@ module.exports = {
         loader: 'url-loader?limit=10000&mimetype=image/svg+xml&name=fonts/[name].[ext]'
       },
       {
-        test: /\.woff/,
+        test: /\.(woff|eot)/,
         loader: 'file-loader?name=fonts/[name].[ext]'
       },
       {
         test: /\.[ot]tf/,
         loader: 'url-loader?limit=10000mimetype=application/octet-stream&name=fonts/[name].[ext]'
-      },
-      {
-        test:/\.mp3/,
-        loader: 'file-loader'
       }
     ]
   }

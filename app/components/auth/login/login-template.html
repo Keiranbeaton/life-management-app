@@ -2,11 +2,11 @@
   <form class="kb-login-form" name="login" ng-submit="$ctrl.login($ctrl.user)">
     <div class="kb-form-group">
       <i class="fas fa-user"></i>
-      <input type="text" required ng-model="$ctrl.user.email">
+      <input type="text" placeholder="Enter Username" required ng-model="$ctrl.user.email">
     </div>
     <div class="kb-form-group">
       <i class="fas fa-key"></i>
-      <input type="text" placeholder="" required ng-model="$ctrl.user.password">
+      <input type="text" placeholder="Enter Password" required ng-model="$ctrl.user.password">
     </div>
     <button class="kb-button" type="submit">Log In</button>
   </form>

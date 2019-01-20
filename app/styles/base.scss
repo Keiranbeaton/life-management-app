@@ -1,5 +1,6 @@
 @import "reset";
-@import url('./vendor/fontawesome-free-5.6.3-web/css/fontawesome.min.css');
+@import "./vendor/fontawesome-free-5.6.3-web/scss/fontawesome.scss";
+@import "./vendor/fontawesome-free-5.6.3-web/scss/solid.scss";
 @import "themes";
 @import "format";
 @import "signup";
