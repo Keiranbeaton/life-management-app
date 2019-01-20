@@ -2,18 +2,15 @@
   <form class="kb-login-form" name="login" ng-submit="$ctrl.login($ctrl.user)">
     <div class="kb-form-group">
       <i class="fas fa-user"></i>
-      <input type="text" placeholder="Enter Username" required ng-model="$ctrl.user.email">
+      <input type="text" placeholder="E-mail address" required ng-model="$ctrl.user.email">
     </div>
     <div class="kb-form-group">
       <i class="fas fa-key"></i>
-      <input type="text" placeholder="Enter Password" required ng-model="$ctrl.user.password">
+      <input type="text" placeholder="Password" required ng-model="$ctrl.user.password">
     </div>
     <button class="kb-button" type="submit">Log In</button>
   </form>
-  <section>
-    <p>Don't have an account? Click here to make one!</p>
-    <a href="#/signup">
-      <button type="button" name="button">Sign Up</button>
-    </a>
+  <section class="kb-info">
+    <p> Don't have an account? <a href="#/signup">Sign up here!</a></p>
   </section>
 </div>
