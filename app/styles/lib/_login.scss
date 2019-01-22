@@ -25,16 +25,12 @@ form.kb-login-form {
   }
   button.kb-button {
     width: 100%;
-    border: none;
-    padding: 6px;
-    border-radius: 2px;
   }
 }
 
 section.kb-info {
-  width: 50%;
-  margin-left: 25%;
-  margin-right: 25%;
+  width: 100%;
+  text-align: center;
 }
 
 @media (min-width: 640px) {

@@ -16,10 +16,10 @@ module.exports = function(app) {
           $log.error('Error in AuthController.signup: ', err);
         });
     };
-    
+
     this.login = function(user) {
       $log.debug('AuthController.login()');
-      $http.get(this.baseUrl + '/signin')
+      $http.get(this.baseUrl + '/login', {headers: {'Authorization': 'Basic ' + $window.btoa(user.email + ':' + user.password)}})
         .then((res) => {
           auth.setToken(res.data);
           this.currentUser = auth.currentUser;
@@ -33,22 +33,23 @@ module.exports = function(app) {
       $log.debug('AuthController.logout()');
       auth.logOut();
       this.currentUser = auth.currentUser;
+      $log.log('this.currentUser', this.currentUser);
       $location.path('/login');
     }
 
     this.checkUser = function() {
       $log.debug('AuthController.checkUser()');
       let user = this.getUser();
-      $log.log('user.username', user.username);
-      if(user.username !== 'none' && user.username !== undefined) {
-        $location.path('logout');
+      $log.log('user', user);
+      if(user.username !== '' && user.username !== undefined) {
+        $location.path('/logout');
       }
     }
     this.checkNoUser = function() {
       $log.debug('AuthController.checkNoUser()');
       let user = this.getUser();
-      $log.log('user.username', user.username);
-      if(user.username === 'none' || user.username === undefined) {
+      $log.log('user', user);
+      if(user.username === '' || user.username === undefined) {
         $location.path('/login');
       }
     }

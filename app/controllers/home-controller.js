@@ -14,10 +14,16 @@ module.exports = function(app) {
     this.checkNoUser = function() {
       $log.debug('HomeController.checkNoUser()');
       let user = this.getUser();
-      if(user.username === 'none') {
+      if(user.username === '' || user.username === undefined) {
         $location.path('/login');
       }
     }
+
+    this.initHome = function() {
+      this.checkNoUser();
+      this.getUserInfo();
+    }
+
     this.getUser = auth.getUser.bind(auth);
   }]);
 };

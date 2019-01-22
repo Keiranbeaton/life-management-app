@@ -36,7 +36,9 @@ transactionRouter.get('/user/:userId', function(req, res, next) {
   debug('GET /api/transaction/user/:userId');
   Transaction.find({userId: req.params.userId}).populate('vendor category subcategory').then((trans) => {
     let formatted = transactionFormatter.format(trans);
-    res.send(formatted);
+    User.findById(req.params.userId).populate('vendor transaction category subcategory').then((user) => {
+      res.send({transactions: formatted, user: user});
+    }).catch(err => next(createError(400, err.message)));
   }).catch(err => next(createError(400, err.message)));
 })
 

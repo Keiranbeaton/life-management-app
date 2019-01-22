@@ -1,12 +1,12 @@
 <div ng-init="$ctrl.checkUser()" class="kb-container">
   <form class="kb-login-form" name="login" ng-submit="$ctrl.login($ctrl.user)">
     <div class="kb-form-group">
-      <i class="fas fa-user"></i>
-      <input type="text" placeholder="E-mail address" required ng-model="$ctrl.user.email">
+      <i class="fas fa-envelope"></i>
+      <input type="email" placeholder="E-mail address" required ng-model="$ctrl.user.email">
     </div>
     <div class="kb-form-group">
       <i class="fas fa-key"></i>
-      <input type="text" placeholder="Password" required ng-model="$ctrl.user.password">
+      <input type="password" placeholder="Password" required ng-model="$ctrl.user.password">
     </div>
     <button class="kb-button" type="submit">Log In</button>
   </form>

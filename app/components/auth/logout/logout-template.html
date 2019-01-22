@@ -1,6 +1,10 @@
 <div ng-init="$ctrl.checkNoUser()" class="kb-container">
-  <form class="kb-logout-form" ng-submit="$ctrl.signout()">
-    <p>Are you sure you want to log out?</p>
-    <button class="kb-button" type="submit">Log Out</button>
-  </form>
+  <section class="kb-logout">
+    <a href="#">
+      <button class="kb-button" type="button" name="button" ng-click="$ctrl.logout()">Click here to log out</button>
+    </a>
+    <a href="#/home">
+      <button class="kb-button" type="button" name="button">Click here to return to the home page</button>
+    </a>
+  </section>
 </div>

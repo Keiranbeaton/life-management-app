@@ -1,3 +1,38 @@
+section.transaction-left {
+  background-color: $kb-light;
+  width: 80%;
+  margin: 10%;
+  header {
+    font-size: 0;
+    button.kb-switch {
+      display: inline-block;
+      font-size: 0.667rem;
+      width: 50%;
+      white-space: none;
+    }
+  }
+  section.transaction-add {
+    ul.kb-add-options {
+      li.kb-add {
+        button.kb-switch {
+          display: block;
+          width: 100%;
+        }
+        form {
+          input {
+            display: block;
+            width: 100%;
+          }
+          button {
+            display: block;
+            width: 100%;
+          }
+        }
+      }
+    }
+  }
+}
+
 @media (min-width: 640px) {
 
 }

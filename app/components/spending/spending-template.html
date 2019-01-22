@@ -1,24 +1,92 @@
-<div class="kb-container">
+<div class="kb-container" ng-init="$ctrl.initSpending()">
   <section class="transaction-left">
     <header>
-      <h2>Recent Transactions</h2>
+      <button type="button" class="kb-switch" ng-click="$ctrl.setLeft(1)">View Transactions</button>
+      <button type="button" class="kb-switch" ng-click="$ctrl.setLeft(2)">Add New</button>
     </header>
-    <ul class="transaction-list">
-      <li ng-repeat="" class="single-transaction">
-        <ul class="single-transaction">
+    <section class="transaction-add">
+      <header>
+        <h2>Add New</h2>
+      </header>
+      <ul class="kb-add-options">
+        <li class="kb-add kb-vendor">
+          <button type="button" class="kb-switch" name="button" ng-click="$ctrl.setButtons(1)">Add Vendors</button>
+          <form class="" ng-show="$ctrl.showHide.addButtons === 1" ng-submit="">
+            <input type="text" placeholder="Vendor Name">
+            <button type="submit" name="button">Submit</button>
+          </form>
+        </li>
+        <li class="kb-add kb-category">
+          <button type="button" class="kb-switch" name="button" ng-click="$ctrl.setButtons(2)">Add Categories</button>
+          <form class="" ng-show="$ctrl.showHide.addButtons === 2" ng-submit="">
+            <input type="text" placeholder="Category Name">
+            <button type="submit" name="button">Submit</button>
+          </form>
+        </li>
+        <li class="kb-add kb-subcategory">
+          <button type="button" class="kb-switch" name="button" ng-click="$ctrl.setButtons(3)">Add Subcategories</button>
+          <form class="" ng-show="$ctrl.showHide.addButtons === 3" ng-submit="">
+            <input type="text" placeholder="Subcategory Name">
+            <select class="" name="supercategory">
+
+            </select>
+            <button type="submit">Submit</button>
+          </form>
+        </li>
+        <li class="kb-add kb-transaction">
+          <button type="button" class="kb-switch" ng-click="$ctrl.setButtons(4)">Add Transactions</button>
+          <form class="" ng-show="$ctrl.showHide.addButtons === 4" ng-submit="">
+            <div class="">
+              <label for=""></label>
+              <input type="date" name="Date">
+            </div>
+            <div class="">
+              <label for="Amount">$</label>
+              <input type="number" name="Amount" placeholder="0.00">
+            </div>
+            <select name="Vendor" >
+
+            </select>
+            <select name="Category" >
+
+            </select>
+            <select name="Subcategory" >
+
+            </select>
+            <div class="">
+              <label for="Subscription">Is this a subscription?</label>
+              <input type="checkbox" name="Subscription">
+              <label for="SubscriptionInterval"></label>
+              <select name="SubscriptionInterval">
+
+              </select>
+            </div>
+            <button type="submit" name="button">Submit</button>
+          </form>
+        </li>
+      </ul>
+    </section>
+    <section class="transaction-list">
+      <header>
+        <h2>Recent Transactions</h2>
+      </header>
+      <ul class="transaction-list">
+        <li ng-repeat="" class="single-transaction">
+          <ul class="single-transaction">
             <li class="date"></li>
             <li class="vendor"></li>
             <li class="amount"></li>
-        </ul>
-      </li>
-    </ul>
-    <footer>
-      <ul>
-        <li></li>
-        <li></li>
-        <li></li>
+          </ul>
+        </li>
       </ul>
-    </footer>
+      <footer>
+        <ul>
+          <li></li>
+          <li></li>
+          <li></li>
+        </ul>
+      </footer>
+    </section>
   </section>
   <section class="transaction-main">
     <header>

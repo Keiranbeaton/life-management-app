@@ -1,3 +1,39 @@
+h2.kb-headline {
+  font-size: 1.166rem;
+  text-align: center;
+  margin-top: 10px;
+}
+
+h3.kb-headline {
+  font-size: 1rem;
+  text-align: center;
+  margin-top: 5px;
+}
+
+ul.kb-modules {
+  background-color: $kb-light;
+  margin-top: 10px;
+  margin-left: 10%;
+  margin-right: 10%;
+  padding: 10px;
+  li {
+    background-color: $kb-color1;
+    color: $kb-white;
+    display: block;
+    font-size: .833rem;
+    height: 40px;
+    width: 80%;
+    margin-left: 10%;
+    margin-right: 10%;
+    border-radius: 2px;
+    text-align: center;
+    vertical-align: baseline;
+    padding-top: 13.33px;
+    margin-bottom: 0.4166rem;
+    margin-top: 0.4166rem;
+  }
+}
+
 @media (min-width: 640px) {
 
 }

@@ -1,18 +1,34 @@
 'use strict';
 
 module.exports = function(app) {
-  app.controller('SpendingController', ['$http', '$log', '$scope', 'auth', 'moment', function($http, $log, $scope, auth, moment) {
+  app.controller('SpendingController', ['$http', '$log', '$scope', '$location', 'auth', 'moment', function($http, $log, $scope, $location, auth, moment) {
     this.currentUser = auth.currentUser;
     this.transactions = {};
 
-    this.getTransactions = function() {
+    this.showHide = {addButtons: 0, leftContainer: 1};
+
+    this.setButtons = function(num) {
+      if (this.showHide.addButtons === num) {
+        this.showHide.addButtons = 0;
+      } else {
+        this.showHide.addButtons = num;    
+      }
+    }
+
+    this.setLeft = function(num) {
+      this.showHide.leftContainer = num;
+    }
+
+    this.getUserData = function() {
       $log.debug('SpendingController.getTransactions()');
       $http.get(this.baseUrl + '/transactions/' + this.currentUser.userId, this.config)
         .then((res) => {
-          this.transactions = res.data;
+          this.transactions = res.data.transactions;
+          this.user = res.data.user;
         }, (err) => {
           $log.error('SpendingController.getTransactions()', err);
-        })
+          // add error response
+        });
     }
 
     this.formatTransaction = function(dateInt, transObj, returnObj) {
@@ -20,7 +36,7 @@ module.exports = function(app) {
         let catIndex = returnObj[dateInt].categories.map(function(ele) {return ele.name;}).indexOf(transObj.category.name);
         if (returnObj[dateInt].categories[catIndex].subcategoryNames.includes(transObj.subcategory.name)) {
           let subIndex = returnObj[dateInt].categories[catIndex].subcategories.map(function(ele) {return ele.name}).indexOf(transObj.subcategory.name);
-          returnObj[dateInt].categories[catIndex].subcategories[subIndex].push(transObj);
+          returnObj[dateInt].categories[catIndex].subcategories[subIndex].transactions.push(transObj);
         } else {
           returnObj[dateInt].categories[catIndex].subcategoryNames.push(transObj.subcategory.name);
           returnObj[dateInt].categories[catIndex].subcategories.push({name: transObj.subcategory.name, transactions: []});
@@ -40,61 +56,18 @@ module.exports = function(app) {
       let now = moment();
       let startOfWeek = moment().startOf('week');
       let transMoment = moment(trans.date);
-
-      if(transMoment.isBetween(now, startOfWeek)) {
-        this.formatTransaction(0, trans, this.transactions.weeks);
-      } else if (transMoment.isBetween(startOfWeek, startOfWeek.subtract(7, 'd'))) {
-        this.formatTransaction(1, trans, this.transactions.weeks);
-      } else if (transMoment.isBetween(startOfWeek.subtract(7, 'd'), startOfWeek.subtract(14, 'd'))) {
-        this.formatTransaction(2, trans, this.transactions.weeks);
-      } else if (transMoment.isBetween(startOfWeek.subtract(14, 'd'), startOfWeek.subtract(21, 'd'))) {
-        this.formatTransaction(3, trans, this.transactions.weeks);
-      } else if (transMoment.isBetween(startOfWeek.subtract(21, 'd'), startOfWeek.subtract(28, 'd'))) {
-        this.formatTransaction(4, trans, this.transactions.weeks);
-      } else if (transMoment.isBetween(startOfWeek.subtract(28, 'd'), startOfWeek.subtract(35, 'd'))) {
-        this.formatTransaction(5, trans, this.transactions.weeks);
-      } else if (transMoment.isBetween(startOfWeek.subtract(35, 'd'), startOfWeek.subtract(42, 'd'))) {
-        this.formatTransaction(6, trans, this.transactions.weeks);
-      } else if (transMoment.isBetween(startOfWeek.subtract(42, 'd'), startOfWeek.subtract(49, 'd'))) {
-        this.formatTransaction(7, trans, this.transactions.weeks);
-      } else if (transMoment.isBetween(startOfWeek.subtract(49, 'd'), startOfWeek.subtract(56, 'd'))) {
-        this.formatTransaction(8, trans, this.transactions.weeks);
-      } else if (transMoment.isBetween(startOfWeek.subtract(56, 'd'), startOfWeek.subtract(63, 'd'))) {
-        this.formatTransaction(9, trans, this.transactions.weeks);
-      } else if (transMoment.isBetween(startOfWeek.subtract(63, 'd'), startOfWeek.subtract(70, 'd'))) {
-        this.formatTransaction(10, trans, this.transactions.weeks);
-      } else if (transMoment.isBetween(startOfWeek.subtract(70, 'd'), startOfWeek.subtract(77, 'd'))) {
-        this.formatTransaction(11, trans, this.transactions.weeks);
-      } else {
-        $log.log('Transaction beyond last twelve weeks');
+      for (let i = 0; i < 12; i++) {
+        if(transMoment.isAfter(startOfWeek.subtract((7 * i), 'd')) || transMoment.isSame(startOfWeek.subtract((7 * i), 'd'))) {
+          this.formatTransaction(i, trans, this.transactions.weeks);
+          break;
+        }
       }
 
-      if (transMoment.month() === now.month() && transMoment.year() === now.year()) {
-        this.formatTransaction(0, trans, this.transactions.months);
-      } else if (transMoment.month() === now.subtract(1, 'M' && transMoment.year() === now.subtract(1, 'M').year())) {
-        this.formatTransaction(1, trans, this.transactions.months);
-      } else if (transMoment.month() === now.subtract(2, 'M' && transMoment.year() === now.subtract(2, 'M').year())) {
-        this.formatTransaction(2, trans, this.transactions.months);
-      }else if (transMoment.month() === now.subtract(3, 'M' && transMoment.year() === now.subtract(3, 'M').year())) {
-        this.formatTransaction(3, trans, this.transactions.months);
-      }else if (transMoment.month() === now.subtract(4, 'M' && transMoment.year() === now.subtract(4, 'M').year())) {
-        this.formatTransaction(4, trans, this.transactions.months);
-      }else if (transMoment.month() === now.subtract(5, 'M' && transMoment.year() === now.subtract(5, 'M').year())) {
-        this.formatTransaction(5, trans, this.transactions.months);
-      }else if (transMoment.month() === now.subtract(6, 'M' && transMoment.year() === now.subtract(6, 'M').year())) {
-        this.formatTransaction(6, trans, this.transactions.months);
-      }else if (transMoment.month() === now.subtract(7, 'M' && transMoment.year() === now.subtract(7, 'M').year())) {
-        this.formatTransaction(7, trans, this.transactions.months);
-      }else if (transMoment.month() === now.subtract(8, 'M' && transMoment.year() === now.subtract(8, 'M').year())) {
-        this.formatTransaction(8, trans, this.transactions.months);
-      }else if (transMoment.month() === now.subtract(9, 'M' && transMoment.year() === now.subtract(9, 'M').year())) {
-        this.formatTransaction(9, trans, this.transactions.months);
-      }else if (transMoment.month() === now.subtract(10, 'M' && transMoment.year() === now.subtract(10, 'M').year())) {
-        this.formatTransaction(10, trans, this.transactions.months);
-      }else if (transMoment.month() === now.subtract(11, 'M' && transMoment.year() === now.subtract(11, 'M').year())) {
-        this.formatTransaction(11, trans, this.transactions.months);
-      }else if (transMoment.month() === now.subtract(12, 'M' && transMoment.year() === now.subtract(12, 'M').year())) {
-        this.formatTransaction(12, trans, this.transactions.months);
+      for(let i = 0; i < 12; i++) {
+        if (transMoment.month() === now.subtract(i, 'M').month() && transMoment.year() === now.subtract(i, 'M').year()) {
+          this.formatTransaction(i, trans, this.transactions.months);
+          break;
+        }
       }
     }
 
@@ -111,24 +84,76 @@ module.exports = function(app) {
         })
         .catch((err) => {
           $log.error('Error in SpendingController.addTransaction()', err);
+          // add error response
         })
       }
     }
 
-    this.removeTransaction = function(trans) {
-      $log.debug('SpendingController.removeTransaction()');
+    this.deleteTransaction = function(trans) {
+      $log.debug('SpendingController.deleteTransaction()');
       $http.delete(this.baseUrl + '/transaction' + trans._id, this.config)
         .then((res) => {
           $log.log('Successfully Deleted Transaction', res.data);
-          // remove transaction from frontend here
+          for(let i = 0; i < this.transactions.weeks.length - 1; i++) {
+            for(let j = 0; j < this.transactions.weeks[i].categories.length - 1; j++) {
+              for(let k = 0; k < this.transactions.weeks[i].categories[j].subcategories.length - 1; k++) {
+                for(let m = 0; m < this.transactions.weeks[i].categories[j].subcategories[k].transactions.length - 1; m++) {
+                  if(this.transactions.weeks[i].categories[j].subcategories[k].transactions[m]._id === res.data._id) {
+                    this.transactions.weeks[i].categories[j].subcategories[k].transactions.splice(m, 1);
+                    m = this.transactions.weeks[i].categories[j].subcategories[k].transactions.length;
+                    k = this.transactions.weeks[i].categories[j].sucategories.length;
+                    j = this.transactions.weeks[i].categories.length;
+                    i = this.transactions.weeks.length;
+                  }
+                }
+              }
+            }
+          }
+
+          for(let i = 0; i < this.transactions.months.length - 1; i++) {
+            for(let j = 0; j < this.transactions.months[i].categories.length - 1; j++) {
+              for(let k = 0; k < this.transactions.months[i].categories[j].subcategories.length - 1; k++) {
+                for (let m = 0; m < this.transactions.months[i].categories[j].subcategories[k].transactions.length - 1; m++) {
+                  if(this.transactions.months[i].categories[j].subcategories[k].transactions[m]._id === res.data._id) {
+                    this.transactions.months[i].categories[j].subcategories[k].transactions.splice(m, 1);
+                    m = this.transactions.months[i].categories[j].subcategories[k].transactions.length;
+                    k = this.transactions.months[i].categories[j].subcategories.length;
+                    k = this.transactions.months[i].categories.length;
+                    i = this.transactions.months.length;
+                  }
+                }
+              }
+            }
+          }
         })
         .catch((err) => {
           $log.error('Error in SpendingController.removeTransaction()', err);
+          // Add error response
         });
-    };
+    }
 
-    this.addVendor = function() {
+    this.checkNoUser = function() {
+      $log.debug('SpendingController.checkNoUser()');
+      let user = this.getUser();
+      if(user.username === '' || user.username === undefined) {
+        $location.path('/login');
+      }
+    }
+
+    this.getUser = auth.getUser.bind(auth);
+
+    this.addVendor = function(vendor) {
       $log.debug('SpendingController.addVendor()');
+      vendor.userId = this.currentUser._id;
+      if(vendor.name == null) {
+        $log.error('Vendor must have a name');
+      } else {
+        $http.post(this.baseUrl + '/vendor', vendor,  this.config)
+          .then((res) => {
+            $log.log('Successfully Added Vendor', res.data);
+
+          })
+      }
     }
 
     this.removeVendor = function() {
@@ -149,6 +174,11 @@ module.exports = function(app) {
 
     this.removeSubcategory = function() {
       $log.debug('SpendingController.removeSubcategory()');
+    }
+
+    this.initSpending = function() {
+      this.checkNoUser();
+      this.getUserData();
     }
 
   }]);
