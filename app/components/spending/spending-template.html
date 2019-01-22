@@ -11,53 +11,45 @@
       <ul class="kb-add-options">
         <li class="kb-add kb-vendor">
           <button type="button" class="kb-switch" name="button" ng-click="$ctrl.setButtons(1)">Add Vendors</button>
-          <form class="" ng-show="$ctrl.showHide.addButtons === 1" ng-submit="">
-            <input type="text" placeholder="Vendor Name">
+          <form class="kb-add-form" ng-show="$ctrl.showHide.addButtons === 1" ng-submit="$ctrl.addVendor($ctrl.formValues.vendor)">
+            <input type="text" placeholder="Vendor Name" ng-model="$ctrl.formValues.vendor.name">
             <button type="submit" name="button">Submit</button>
           </form>
         </li>
         <li class="kb-add kb-category">
           <button type="button" class="kb-switch" name="button" ng-click="$ctrl.setButtons(2)">Add Categories</button>
-          <form class="" ng-show="$ctrl.showHide.addButtons === 2" ng-submit="">
-            <input type="text" placeholder="Category Name">
+          <form class="kb-add-form" ng-show="$ctrl.showHide.addButtons === 2" ng-submit="$ctrl.addCategory($ctrl.formValues.category)">
+            <input type="text" ng-model="$ctrl.formValues.category.name" placeholder="Category Name">
             <button type="submit" name="button">Submit</button>
           </form>
         </li>
         <li class="kb-add kb-subcategory">
           <button type="button" class="kb-switch" name="button" ng-click="$ctrl.setButtons(3)">Add Subcategories</button>
-          <form class="" ng-show="$ctrl.showHide.addButtons === 3" ng-submit="">
-            <input type="text" placeholder="Subcategory Name">
-            <select class="" name="supercategory">
-
-            </select>
+          <form class="kb-add-form" ng-show="$ctrl.showHide.addButtons === 3" ng-submit="$ctrl.addSubcategory($ctrl.formValues.subcategory)">
+            <input type="text" ng-model="$ctrl.formValues.subcategory.name" placeholder="Subcategory Name">
+            <select class="" ng-model="$ctrl.formValues.subcategory.supercategory" ng-options="supercategory as supercategory.name for supercategory in $ctrl.user.categories" name="supercategory"></select>
             <button type="submit">Submit</button>
           </form>
         </li>
         <li class="kb-add kb-transaction">
           <button type="button" class="kb-switch" ng-click="$ctrl.setButtons(4)">Add Transactions</button>
-          <form class="" ng-show="$ctrl.showHide.addButtons === 4" ng-submit="">
-            <div class="">
-              <label for=""></label>
-              <input type="date" name="Date">
+          <form class="kb-add-form" ng-show="$ctrl.showHide.addButtons === 4" ng-submit="$ctrl.addTransaction($ctrl.formValues.transaction)">
+            <div class="kb-group">
+              <label for="date"></label>
+              <input type="date" ng-model="$ctrl.formValues.transaction.date" name="Date">
             </div>
-            <div class="">
+            <div class="kb-group">
               <label for="Amount">$</label>
-              <input type="number" name="Amount" placeholder="0.00">
+              <input type="number" ng-model="$ctrl.formValues.transaction.amount" name="Amount" placeholder="0.00">
             </div>
-            <select name="Vendor" >
-
-            </select>
-            <select name="Category" >
-
-            </select>
-            <select name="Subcategory" >
-
-            </select>
-            <div class="">
+            <select ng-model="$ctrl.formValues.transaction.vendor" ng-options="vendor as vendor.name for vendor in $ctrl.user.vendors" name="Vendor"></select>
+            <select ng-model="$ctrl.formValues.transaction.category" ng-options="category as category.name for category in $ctrl.user.categories" name="Category" ></select>
+            <select ng-model="$ctrl.formValues.transaction.subcategory" ng-options="subcategory as subcategory.name for subcategory in $ctrl.user.categories.subcategories" name="Subcategory"></select>
+            <div class="kb-group kb-check">
               <label for="Subscription">Is this a subscription?</label>
-              <input type="checkbox" name="Subscription">
+              <input type="checkbox" ng-model="$ctrl.formValues.transaction.isSubscription" name="Subscription">
               <label for="SubscriptionInterval"></label>
-              <select name="SubscriptionInterval">
+              <select ng-model="$ctrl.formValues.transaction.subscriptionInterval" name="SubscriptionInterval">
 
               </select>
             </div>

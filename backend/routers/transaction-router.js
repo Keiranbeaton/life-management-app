@@ -4,7 +4,6 @@ const Router = require('express').Router;
 const createError = require('http-errors');
 const jsonParser = require('body-parser').json();
 const debug = require('debug')('transactionRouter');
-
 const Transaction = require('../models/transaction');
 const User = require('../models/user');
 const transactionFormatter = require('../lib/transaction-format');
@@ -31,16 +30,6 @@ transactionRouter.get('/:id', function(req, res, next) {
   debug('GET /api/transaction/:id');
   Transaction.findById(req.params.id).then(trans => res.send(trans)).catch(err => next(createError(400, err.message)));
 });
-
-transactionRouter.get('/user/:userId', function(req, res, next) {
-  debug('GET /api/transaction/user/:userId');
-  Transaction.find({userId: req.params.userId}).populate('vendor category subcategory').then((trans) => {
-    let formatted = transactionFormatter.format(trans);
-    User.findById(req.params.userId).populate('vendor transaction category subcategory').then((user) => {
-      res.send({transactions: formatted, user: user});
-    }).catch(err => next(createError(400, err.message)));
-  }).catch(err => next(createError(400, err.message)));
-})
 
 transactionRouter.put('/:id', jsonParser, function(req, res, next) {
   debug('PUT /api/transaction/:id');

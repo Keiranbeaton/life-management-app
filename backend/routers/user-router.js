@@ -9,6 +9,7 @@ const Transaction = require('../models/transaction');
 const Category = require('../models/category');
 const Subcategory = require('../models/subcategory');
 const debug = require('debug')('userRouter');
+const transactionFormatter = require('../lib/transaction-format');
 
 let userRouter = module.exports = exports = Router();
 
@@ -26,6 +27,20 @@ userRouter.get('/:id', (req, res, next) => {
   }).catch((err) => {
     next(createError(404, err.message));
   });
+});
+
+userRouter.get('/transactions/:id', (req, res, next) => {
+  debug('GET /api/user/transactions/:id');
+  User.findById(req.params.id).populate('categories transactions vendors').then((user) => {
+    if(user.transactions.length > 0) {
+      Transaction.find({userId: req.params.id}).populate('vendor category subcategory').then((trans) => {
+        let formatted = transactionFormatter.format(trans);
+        res.send({transactions: formatted, user: user});
+      }).catch(err => next(createError(400, err.message)));
+    } else {
+      res.send({transactions: {}, user: user});
+    }
+  }).catch(err => next(createError(404, err.message)));
 });
 
 userRouter.put('/:id', jsonParser, (req, res, next) => {

@@ -4,9 +4,12 @@ const Router = require('express').Router;
 const jsonParser = require('body-parser').json();
 const createError = require('http-errors');
 const User = require('../models/user');
+const Category = require('../models/category');
+const Subcategory = require('../models/subcategory');
 const BasicHttp = require('../lib/basic-http');
 const jwtAuth = require('../lib/jwt-auth');
 const HandleError = require('../lib/handle-error');
+const addDefaults = require('../lib/add-defaults');
 const debug = require('debug')('authRouter');
 
 let authRouter = module.exports = exports = Router();
@@ -23,6 +26,7 @@ authRouter.post('/signup', jsonParser, (req, res, next) => {
         tokenData.username = userReturn.basic.email;
         tokenData.userId = userReturn._id;
         res.json(tokenData);
+        addDefaults.add(userReturn);
       }, HandleError(400, next, 'Bad Request'));
     }, HandleError(500, next, 'Username already in use'));
 });

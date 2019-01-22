@@ -6,16 +6,16 @@ const jsonParser = require('body-parser').json();
 const debug = require('debug')('subcategoryRouter');
 
 const Subcategory = require('../models/subcategory');
-const User = require('../models/user');
+const Category = require('../models/category');
 
 let subcategoryRouter = module.exports = exports = new Router();
 
 subcategoryRouter.post('/', jsonParser, function(req, res, next) {
   debug('POST /api/subcategory/');
   let data = req.body;
-  User.findById(data.userId)
-    .then(user => {
-      user.addSubcategory(req.body)
+  Category.findById(data.supercategory._id)
+    .then(cat => {
+      cat.addSubcategory(req.body)
         .then((sub) => {
           res.json(sub);
         }).catch(next);
@@ -49,10 +49,10 @@ subcategoryRouter.delete('/:id', function(req, res, next) {
    debug('DELETE /api/subcategory/:id');
    Subcategory.findById(req.params.id)
     .then(sub => {
-      return User.findById(sub.userId);
+      return Category.findById(sub.supercategory);
     })
-    .then(user => {
-      return user.removeSubcategoryById(req.params.id);
+    .then(cat => {
+      return cat.removeSubcategoryById(req.params.id);
     })
     .then(sub => res.json(sub))
     .catch(next);

@@ -4,14 +4,14 @@ module.exports = function(app) {
   app.controller('SpendingController', ['$http', '$log', '$scope', '$location', 'auth', 'moment', function($http, $log, $scope, $location, auth, moment) {
     this.currentUser = auth.currentUser;
     this.transactions = {};
-
+    this.formValues = {vendor: {}, category: {}, subcategory: {}, transaction: {}};
     this.showHide = {addButtons: 0, leftContainer: 1};
 
     this.setButtons = function(num) {
       if (this.showHide.addButtons === num) {
         this.showHide.addButtons = 0;
       } else {
-        this.showHide.addButtons = num;    
+        this.showHide.addButtons = num;
       }
     }
 
@@ -20,8 +20,8 @@ module.exports = function(app) {
     }
 
     this.getUserData = function() {
-      $log.debug('SpendingController.getTransactions()');
-      $http.get(this.baseUrl + '/transactions/' + this.currentUser.userId, this.config)
+      $log.debug('SpendingController.getUserData()');
+      $http.get(this.baseUrl + '/user/transactions/' + this.currentUser.userId, this.config)
         .then((res) => {
           this.transactions = res.data.transactions;
           this.user = res.data.user;
@@ -62,7 +62,6 @@ module.exports = function(app) {
           break;
         }
       }
-
       for(let i = 0; i < 12; i++) {
         if (transMoment.month() === now.subtract(i, 'M').month() && transMoment.year() === now.subtract(i, 'M').year()) {
           this.formatTransaction(i, trans, this.transactions.months);
@@ -145,13 +144,17 @@ module.exports = function(app) {
     this.addVendor = function(vendor) {
       $log.debug('SpendingController.addVendor()');
       vendor.userId = this.currentUser._id;
-      if(vendor.name == null) {
+      if(vendor.name == null || vendor.useerId == null) {
         $log.error('Vendor must have a name');
       } else {
         $http.post(this.baseUrl + '/vendor', vendor,  this.config)
           .then((res) => {
             $log.log('Successfully Added Vendor', res.data);
-
+            this.user.vendors.push(res.data);
+          })
+          .catch((err) => {
+            $log.error('Error in SpendingController.addVendor()', err);
+            // add error response
           })
       }
     }

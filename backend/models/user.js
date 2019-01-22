@@ -21,8 +21,7 @@ let userSchema = mongoose.Schema({
   },
   vendors: [{type:mongoose.Schema.Types.ObjectId, ref: 'Vendor'}],
   transactions: [{type:mongoose.Schema.Types.ObjectId, ref: 'Transaction'}],
-  categories: [{type:mongoose.Schema.Types.ObjectId, ref: 'Category'}],
-  subcategories: [{type:mongoose.Schema.Types.ObjectId, ref:'Subcategory'}]
+  categories: [{type:mongoose.Schema.Types.ObjectId, ref: 'Category'}]
 });
 
 userSchema.methods.generateHash = function(password) {
