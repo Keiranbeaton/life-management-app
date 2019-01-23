@@ -26,13 +26,17 @@ addDefaults.categories = [
 addDefaults.idArray = [];
 
 addDefaults.add = function(user) {
+  console.log('User', user);
   for(let i = 0; i < addDefaults.categories.length; i ++) {
     let newCategory = new Category({name: addDefaults.categories[i].name, userId: user._id});
     newCategory.save().then((cat) => {
+      console.log('Saved Category', cat);
+      cat.subcategories = [];
       addDefaults.idArray.push(cat);
       for(let j = 0; j < addDefaults.categories[i].subcategories.length; i++) {
         let newSub = new Subcategory({name: addDefaults.categories[i].subcategories[j], supercategory: cat._id });
         newSub.save().then((sub) => {
+          console.log('Saved Subcategory', sub);
             addDefaults.idArray[i].subcategories.push(sub._id);
         });
       }
@@ -40,10 +44,12 @@ addDefaults.add = function(user) {
   }
   for (let i = 0; i < addDefaults.idArray.length; i++) {
     addDefaults.idArray[i].save().then((cat) => {
+      console.log('Saved Category with subcategories attached hopefully', cat);
       user.categories.push(cat._id);
     });
   }
   user.save().then((userData) => {
+    console.log('Saved user with categories attached hopefully', userData);
     return userData;
   });
 }
