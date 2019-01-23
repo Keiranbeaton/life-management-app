@@ -13,7 +13,7 @@ let subcategoryRouter = module.exports = exports = new Router();
 subcategoryRouter.post('/', jsonParser, function(req, res, next) {
   debug('POST /api/subcategory/');
   let data = req.body;
-  Category.findById(data.supercategory._id)
+  Category.findById(data.supercategory)
     .then(cat => {
       cat.addSubcategory(req.body)
         .then((sub) => {

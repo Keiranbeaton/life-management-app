@@ -14,7 +14,6 @@ describe('Subcategory Tests', function() {
   let category;
   let subcategory;
   before(function(done) {
-    this.timeout(10000);
     user = new User({name: {first: 'SubcategoryFirst', last: 'SubcategoryLast'}, basic: {email: 'SubcategoryEmail@test.com', password: 'SubcategoryPassword'}});
     user.save().then((userData) => {
       this.user = userData;

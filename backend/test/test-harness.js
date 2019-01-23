@@ -10,6 +10,7 @@ require('./vendor-test');
 require('./category-test');
 require('./subcategory-test');
 require('./transaction-test');
+require('./transaction-formatter-test');
 process.on('exit', (code) => {
   mongoose.connection.db.dropDatabase(() => console.log('db dropped ' + code));
 });

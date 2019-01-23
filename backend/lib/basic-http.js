@@ -3,7 +3,6 @@
 module.exports = exports = function(req, res, next) {
   try {
     let header = req.headers.authorization;
-    console.log('header', header);
     let basicString = header.split(' ')[1];
     let authBuffer = Buffer.from(basicString, 'base64');
     let authString = authBuffer.toString();

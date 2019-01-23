@@ -61,58 +61,6 @@ describe('Transaction Tests', function() {
       });
   });
 
-  it('GET all transactions associated with userId', function(done) {
-    chai.request(baseUrl)
-      .get('/user/' + user._id)
-      .end((err, res) => {
-        expect(err).to.eql(null);
-        expect(res.status).to.eql(200);
-        expect(res.body).to.have.property('weeks');
-        expect(res.body).to.have.property('months');
-        expect(res.body.weeks[0]).to.have.property('categories');
-        expect(res.body.weeks[0]).to.have.property('categoryNames');
-        expect(res.body.weeks[0].categories[0]).to.have.property('name');
-        expect(res.body.weeks[0].categories[0]).to.have.property('subcategories');
-        expect(res.body.weeks[0].categories[0]).to.have.property('subcategoryNames');
-        expect(res.body.weeks[0].categories[0].subcategories[0]).to.have.property('name');
-        expect(res.body.weeks[0].categories[0].subcategories[0]).to.have.property('transactions');
-        expect(res.body.weeks[0].categories[0].subcategories[0].transactions[0]).to.have.property('amount');
-        expect(res.body.weeks[0].categories[0].subcategories[0].transactions[0]).to.have.property('vendor');
-        expect(res.body.weeks[0].categories[0].subcategories[0].transactions[0]).to.have.property('date');
-        expect(res.body.weeks[0].categories[0].subcategories[0].transactions[0]).to.have.property('category');
-        expect(res.body.weeks[0].categories[0].subcategories[0].transactions[0]).to.have.property('subcategory');
-        expect(res.body.weeks[0].categories[0].subcategories[0].transactions[0]).to.have.property('userId');
-        expect(res.body.weeks[0].categories[0].subcategories[0].transactions[0]).to.have.property('isSubscription');
-        expect(res.body.months[0].categories[0].subcategories[0].transactions[0].amount).to.eql(10);
-        expect(res.body.months[0]).to.have.property('categories');
-        expect(res.body.months[0]).to.have.property('categoryNames');
-        expect(res.body.months[0].categories[0]).to.have.property('name');
-        expect(res.body.months[0].categories[0]).to.have.property('subcategories');
-        expect(res.body.months[0].categories[0]).to.have.property('subcategoryNames');
-        expect(res.body.months[0].categories[0].subcategories[0]).to.have.property('name');
-        expect(res.body.months[0].categories[0].subcategories[0]).to.have.property('transactions');
-        expect(res.body.months[0].categories[0].subcategories[0].transactions[0]).to.have.property('amount');
-        expect(res.body.months[0].categories[0].subcategories[0].transactions[0]).to.have.property('vendor');
-        expect(res.body.months[0].categories[0].subcategories[0].transactions[0]).to.have.property('date');
-        expect(res.body.months[0].categories[0].subcategories[0].transactions[0]).to.have.property('category');
-        expect(res.body.months[0].categories[0].subcategories[0].transactions[0]).to.have.property('subcategory');
-        expect(res.body.months[0].categories[0].subcategories[0].transactions[0]).to.have.property('userId');
-        expect(res.body.months[0].categories[0].subcategories[0].transactions[0]).to.have.property('isSubscription');
-        expect(res.body.months[0].categories[0].subcategories[0].transactions[0].amount).to.eql(10);
-        done();
-      });
-  });
-
-  it('GET bad :userId', function(done) {
-    chai.request(baseUrl)
-      .get('/user/badid')
-      .end((err, res) => {
-        expect(err).to.eql(null);
-        expect(res.status).to.eql(400);
-        done();
-      });
-  });
-
   it('DELETE transaction', function(done) {
     chai.request(baseUrl)
       .delete('/' + transaction._id)

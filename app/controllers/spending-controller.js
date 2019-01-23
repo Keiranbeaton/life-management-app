@@ -25,6 +25,7 @@ module.exports = function(app) {
         .then((res) => {
           this.transactions = res.data.transactions;
           this.user = res.data.user;
+          $log.log('res.data', res.data);
         }, (err) => {
           $log.error('SpendingController.getTransactions()', err);
           // add error response
