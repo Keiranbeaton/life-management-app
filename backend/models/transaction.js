@@ -10,8 +10,8 @@ let transactionSchema = mongoose.Schema({
   category: {type: mongoose.Schema.Types.ObjectId, required: true, ref: 'Category'},
   subcategory: {type: mongoose.Schema.Types.ObjectId, required: true, ref: 'Subcategory'},
   text: String,
-  isSubscription: {type: Boolean, required: true, default: false},
-  subscriptionInterval: String
+  isRecurring: {type: Boolean, required: true, default: false},
+  interval: String
 });
 
 module.exports = exports = mongoose.model('Transaction', transactionSchema);

@@ -19,6 +19,16 @@ module.exports = function(app) {
       this.showHide.leftContainer = num;
     }
 
+    this.checkNoUser = function() {
+      $log.debug('SpendingController.checkNoUser()');
+      let user = this.getUser();
+      if(user.username === '' || user.username === undefined) {
+        $location.path('/login');
+      }
+    }
+
+    this.getUser = auth.getUser.bind(auth);
+    
     this.getUserData = function() {
       $log.debug('SpendingController.getUserData()');
       $http.get(this.baseUrl + '/user/transactions/' + this.currentUser.userId, this.config)
@@ -132,21 +142,12 @@ module.exports = function(app) {
         });
     }
 
-    this.checkNoUser = function() {
-      $log.debug('SpendingController.checkNoUser()');
-      let user = this.getUser();
-      if(user.username === '' || user.username === undefined) {
-        $location.path('/login');
-      }
-    }
-
-    this.getUser = auth.getUser.bind(auth);
 
     this.addVendor = function(vendor) {
       $log.debug('SpendingController.addVendor()');
       vendor.userId = this.currentUser._id;
-      if(vendor.name == null || vendor.useerId == null) {
-        $log.error('Vendor must have a name');
+      if(vendor.name == null || vendor.userId == null) {
+        $log.error('Vendor must have a name and userId', vendor.name, vendor.userId);
       } else {
         $http.post(this.baseUrl + '/vendor', vendor,  this.config)
           .then((res) => {
@@ -156,28 +157,80 @@ module.exports = function(app) {
           .catch((err) => {
             $log.error('Error in SpendingController.addVendor()', err);
             // add error response
+          });
+      }
+    }
+
+    this.removeVendor = function(vendor) {
+      $log.debug('SpendingController.removeVendor()');
+      $http.delete(this.baseUrl + '/vendor/' + vendor._id, this.config)
+        .then((res) => {
+          $log.log('Successfully deleted Vendor', res.data);
+          this.user.vendors.splice(this.user.vendors.indexOf(vendor), 1);
+        }, (err) => {
+          $log.error('Error if SpendingController.removeVendor()', err);
+          // add error response;
+        });
+    }
+
+    this.addCategory = function(category) {
+      $log.debug('SpendingController.addCategory()');
+      category.userId = this.currentUser._id;
+      if (category.name == null || category.userId == null) {
+        $log.error('Category must have a name and userId', category.name, category.userId);
+      } else {
+        $http.post(this.baseUrl + '/category', category, this.config)
+          .then((res) => {
+            $log.log('Successfully Added Category', res.data);
+            this.user.categories.push(res.data);
+          })
+          .catch((err) => {
+            $log.error('Error in SpendingController.addCategory()');
+          });
+      }
+    }
+
+    this.removeCategory = function(category) {
+      $log.debug('SpendingController.removeCategory()');
+      $http.delete(this.baseUrl + '/category/' + category._id, this.config)
+        .then((res) => {
+          $log.log('Successfully Deleted Category', res.data);
+          this.user.categories.splice(this.user.categories.indexOf(category), 1);
+        }, (err) => {
+          $log.error('Error in SpendingController.removeCategory()', err);
+          // add error response
+        });
+    }
+
+    this.addSubcategory = function(subcategory) {
+      $log.debug('SpendingController.addSubcategory()');
+      if (subcategory.name == null || subcategory.supercategory == null) {
+        $log.error('Subcategory must have a name and a supercategory', subcategory.name, subcategory.supercategory);
+      } else {
+        $http.post(this.baseUrl + '/subcategory', subcategory, this.config)
+          .then((res) => {
+            $log.log('Successfully added Subcategory', res.data);
+            let index = this.user.categories.map(function(category) {return category.name}).indexOf(subcategory.supercategory.name);
+            if (Array.isArray(this.user.categories[index].subcategories)) {
+              this.user.categories[index].subcategories.push(res.data);
+            } else {
+              this.user.categories[index].subcategories = [res.data];
+            }
           })
       }
     }
 
-    this.removeVendor = function() {
-      $log.debug('SpendingController.removeVendor()');
-    }
-
-    this.addCategory = function() {
-      $log.debug('SpendingController.addCategory()');
-    }
-
-    this.removeCategory = function() {
-      $log.debug('SpendingController.removeCategory()');
-    }
-
-    this.addSubcategory = function() {
-      $log.debug('SpendingController.addSubcategory()');
-    }
-
-    this.removeSubcategory = function() {
+    this.removeSubcategory = function(subcategory) {
       $log.debug('SpendingController.removeSubcategory()');
+      $http.delete(this.baseUrl + '/subcategory/' + subcategory._id, this.config)
+        .then((res) => {
+          $log.log('Successfully deleted Subcategory', res.data);
+          let index = this.user.categories.map(function(category) {return category.name}).indexOf(subcategory.supercategory.name);
+          this.user.categories[index].subcategories.splice(this.user.categories[index].subcategories.indexOx(subcategory), 1);
+        }, (err) => {
+          $log.error('Error in SpendingController.removeSubcategory()', err);
+          // add error response
+        });
     }
 
     this.initSpending = function() {

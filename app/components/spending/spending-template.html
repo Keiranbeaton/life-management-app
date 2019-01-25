@@ -4,7 +4,7 @@
       <button type="button" class="kb-switch" ng-click="$ctrl.setLeft(1)">View Transactions</button>
       <button type="button" class="kb-switch" ng-click="$ctrl.setLeft(2)">Add New</button>
     </header>
-    <section class="transaction-add">
+    <section class="transaction-add" ng-show="$ctrl.showHide.leftContainer == 2">
       <header>
         <h2>Add New</h2>
       </header>
@@ -38,32 +38,24 @@
               <label for="date"></label>
               <input type="date" ng-model="$ctrl.formValues.transaction.date" name="Date">
             </div>
-            <div class="kb-group">
+            <div class="kb-group kb-amount">
               <label for="Amount">$</label>
               <input type="number" ng-model="$ctrl.formValues.transaction.amount" name="Amount" placeholder="0.00">
             </div>
             <select ng-model="$ctrl.formValues.transaction.vendor" ng-options="vendor as vendor.name for vendor in $ctrl.user.vendors" name="Vendor"></select>
             <select ng-model="$ctrl.formValues.transaction.category" ng-options="category as category.name for category in $ctrl.user.categories" name="Category" ></select>
             <select ng-model="$ctrl.formValues.transaction.subcategory" ng-options="subcategory as subcategory.name for subcategory in $ctrl.user.categories.subcategories" name="Subcategory"></select>
-            <div class="kb-group kb-check">
-              <label for="Subscription">Is this a subscription?</label>
-              <input type="checkbox" ng-model="$ctrl.formValues.transaction.isSubscription" name="Subscription">
-              <label for="SubscriptionInterval"></label>
-              <select ng-model="$ctrl.formValues.transaction.subscriptionInterval" name="SubscriptionInterval">
-
-              </select>
-            </div>
             <button type="submit" name="button">Submit</button>
           </form>
         </li>
       </ul>
     </section>
-    <section class="transaction-list">
+    <section class="transaction-list" ng-show="$ctrl.showHide.leftContainer == 1">
       <header>
         <h2>Recent Transactions</h2>
       </header>
       <ul class="transaction-list">
-        <li ng-repeat="" class="single-transaction">
+        <li  class="single-transaction">
           <ul class="single-transaction">
             <li class="date"></li>
             <li class="vendor"></li>

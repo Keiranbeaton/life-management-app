@@ -3,12 +3,11 @@ section.transaction-left {
   width: 80%;
   margin: 10%;
   header {
-    font-size: 0;
+    @extend .kb-container;
     button.kb-switch {
       display: inline-block;
       font-size: 0.667rem;
       width: 50%;
-      white-space: none;
     }
   }
   section.transaction-add {
@@ -17,15 +16,30 @@ section.transaction-left {
         button.kb-switch {
           display: block;
           width: 100%;
+          border: thin black solid;
         }
         form {
-          input {
+          input, button, select {
             display: block;
             width: 100%;
+            border: thin black solid;
           }
-          button {
-            display: block;
-            width: 100%;
+        }
+        div.kb-amount {
+          @extend .kb-container;
+          width: 100%;
+          background-color: $kb-white;
+          border: thin black solid;
+          label {
+            font-size: 0.833rem;
+            display: inline-block;
+            width: 5%;
+          }
+          input {
+            font-size: 0.833rem;
+            display: inline-block;
+            width: 95%;
+            border: none;
           }
         }
       }
