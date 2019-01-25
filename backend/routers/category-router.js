@@ -6,6 +6,7 @@ const jsonParser = require('body-parser').json();
 const debug = require('debug')('categoryRouter');
 
 const Category = require('../models/category');
+const Subcategory = require('../models/subcategory');
 const User = require('../models/user');
 
 let categoryRouter = module.exports = exports = new Router();
@@ -49,6 +50,9 @@ categoryRouter.delete('/:id', function(req, res, next) {
     .then(user => {
       return user.removeCategoryById(req.params.id);
     })
-    .then(cat => res.json(cat))
+    .then(cat => {
+      Subcategory.deleteMany({supercategory: cat._id});
+      res.json(cat);
+    })
     .catch(next);
 });

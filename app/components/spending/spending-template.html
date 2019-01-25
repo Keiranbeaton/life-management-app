@@ -27,7 +27,9 @@
           <button type="button" class="kb-switch" name="button" ng-click="$ctrl.setButtons(3)">Add Subcategories</button>
           <form class="kb-add-form" ng-show="$ctrl.showHide.addButtons === 3" ng-submit="$ctrl.addSubcategory($ctrl.formValues.subcategory)">
             <input type="text" ng-model="$ctrl.formValues.subcategory.name" placeholder="Subcategory Name">
-            <select class="" ng-model="$ctrl.formValues.subcategory.supercategory" ng-options="supercategory as supercategory.name for supercategory in $ctrl.user.categories" name="supercategory"></select>
+            <select class="" ng-model="$ctrl.formValues.subcategory.supercategory" ng-options="supercategory as supercategory.name for supercategory in $ctrl.user.categories" name="supercategory">
+              <option value="">Choose Category</option>
+            </select>
             <button type="submit">Submit</button>
           </form>
         </li>
@@ -40,11 +42,17 @@
             </div>
             <div class="kb-group kb-amount">
               <label for="Amount">$</label>
-              <input type="number" ng-model="$ctrl.formValues.transaction.amount" name="Amount" placeholder="0.00">
+              <input type="number" ng-model="$ctrl.formValues.transaction.amount" name="Amount" placeholder="0.00" step="0.01">
             </div>
-            <select ng-model="$ctrl.formValues.transaction.vendor" ng-options="vendor as vendor.name for vendor in $ctrl.user.vendors" name="Vendor"></select>
-            <select ng-model="$ctrl.formValues.transaction.category" ng-options="category as category.name for category in $ctrl.user.categories" name="Category" ></select>
-            <select ng-model="$ctrl.formValues.transaction.subcategory" ng-options="subcategory as subcategory.name for subcategory in $ctrl.user.categories.subcategories" name="Subcategory"></select>
+            <select ng-model="$ctrl.formValues.transaction.vendor" ng-options="vendor as vendor.name for vendor in $ctrl.user.vendors" name="Vendor">
+              <option value="">Choose Vendor</option>
+            </select>
+            <select ng-model="$ctrl.formValues.transaction.category" ng-options="category as category.name for category in $ctrl.user.categories" name="Category">
+              <option value="">Choose Category</option>
+            </select>
+            <select ng-model="$ctrl.formValues.transaction.subcategory" ng-options="subcategory as subcategory.name for subcategory in $ctrl.formValues.transaction.category.subcategories" ng-hide="$ctrl.formValues.transaction.category === undefined" name="Subcategory">
+              <option value="">Choose Subcategory</option>
+            </select>
             <button type="submit" name="button">Submit</button>
           </form>
         </li>
@@ -55,11 +63,20 @@
         <h2>Recent Transactions</h2>
       </header>
       <ul class="transaction-list">
-        <li  class="single-transaction">
+        <li class="single-transaction kb-labels">
           <ul class="single-transaction">
-            <li class="date"></li>
-            <li class="vendor"></li>
-            <li class="amount"></li>
+            <li class="date">Date</li>
+            <li class="vendor">Vendor</li>
+            <li class="category">Category</li>
+            <li class="amount">Amount</li>
+          </ul>
+        </li>
+        <li  class="single-transaction" ng-repeat="transaction in $ctrl.user.transactions">
+          <ul class="single-transaction">
+            <li class="date">{{transaction.date | date:'shortDate'}}</li>
+            <li class="vendor">{{transaction.vendor.name}}</li>
+            <li class="category">{{transaction.category.name}}</li>
+            <li class="amount">{{transaction.amount | currency:"$"}}</li>
           </ul>
         </li>
       </ul>

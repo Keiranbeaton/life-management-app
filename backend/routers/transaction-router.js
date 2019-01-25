@@ -16,7 +16,8 @@ transactionRouter.post('/', jsonParser, function(req, res, next) {
       .then(user => {
         user.addTransaction(req.body)
           .then((trans) => {
-            res.json(trans);
+            let data = trans.populate('category subcategory vendor');
+            res.json(data);
           }).catch(next);
       }).catch(err => next(createError(400, err.message)));
 });

@@ -6,7 +6,7 @@ module.exports = function(app) {
     this.transactions = {};
     this.formValues = {vendor: {}, category: {}, subcategory: {}, transaction: {}};
     this.showHide = {addButtons: 0, leftContainer: 1};
-
+    
     this.setButtons = function(num) {
       if (this.showHide.addButtons === num) {
         this.showHide.addButtons = 0;
@@ -28,7 +28,7 @@ module.exports = function(app) {
     }
 
     this.getUser = auth.getUser.bind(auth);
-    
+
     this.getUserData = function() {
       $log.debug('SpendingController.getUserData()');
       $http.get(this.baseUrl + '/user/transactions/' + this.currentUser.userId, this.config)
@@ -43,6 +43,7 @@ module.exports = function(app) {
     }
 
     this.formatTransaction = function(dateInt, transObj, returnObj) {
+      $log.debug('SpendingController.formatTransaction()');
       if(returnObj[dateInt].categoryNames.includes(transObj.category.name)) {
         let catIndex = returnObj[dateInt].categories.map(function(ele) {return ele.name;}).indexOf(transObj.category.name);
         if (returnObj[dateInt].categories[catIndex].subcategoryNames.includes(transObj.subcategory.name)) {
@@ -55,7 +56,7 @@ module.exports = function(app) {
         }
       } else {
         returnObj[dateInt].categoryNames.push(transObj.category.name);
-        returnObj[dateInt].categories.push({name: transObj.category.name, subcategories: []});
+        returnObj[dateInt].categories.push({name: transObj.category.name, subcategories: [], subcategoryNames: []});
         returnObj[dateInt].categories[returnObj[dateInt].categories.length - 1].subcategoryNames.push(transObj.subcategory.name);
         returnObj[dateInt].categories[returnObj[dateInt].categories.length - 1].subcategories.push({name: transObj.subcategory.name, transactions: []});
         returnObj[dateInt].categories[returnObj[dateInt].categories.length - 1].subcategories[0].transactions.push(transObj);
@@ -63,7 +64,7 @@ module.exports = function(app) {
     }
 
     this.placeTransaction = function(trans) {
-      $log.debug('SpendingController.sortTransaction()');
+      $log.debug('SpendingController.placeTransaction()');
       let now = moment();
       let startOfWeek = moment().startOf('week');
       let transMoment = moment(trans.date);
@@ -83,19 +84,26 @@ module.exports = function(app) {
 
     this.addTransaction = function(trans) {
       $log.debug('SpendingController.addTransaction()');
-      trans.userId = this.currentUser._id;
-      if (trans.date == null || trans.amount == null || trans.category == null || trans.subcategory == null || trans.isSubscription == null) {
-        $log.error('transaction object incomplete');
+      let dateMoment = moment(trans.date);
+      if (dateMoment.isAfter(moment(), 'day')) {
+        $log.error('Date Cannot be in the future');
       } else {
-        $http.post(this.baseUrl + '/transaction', trans, this.config)
-        .then((res) => {
-          $log.log("Successfully added transaction", res.data);
-          this.placeTransaction(res.data);
-        })
-        .catch((err) => {
-          $log.error('Error in SpendingController.addTransaction()', err);
-          // add error response
-        })
+        trans.userId = this.user._id;
+        if (trans.date == null || trans.amount == null || trans.category == null || trans.subcategory == null) {
+          $log.error('transaction object incomplete');
+        } else {
+          $http.post(this.baseUrl + '/transaction', trans, this.config)
+          .then((res) => {
+            $log.log("Successfully added transaction", res.data);
+            this.placeTransaction(res.data);
+            this.showHide.addButtons = 0;
+            this.formValues.transaction = {date: undefined, amount: undefined, vendor: undefined, category: undefined, subcategory: undefined};
+          })
+          .catch((err) => {
+            $log.error('Error in SpendingController.addTransaction()', err);
+            // add error response
+          })
+        }
       }
     }
 
@@ -145,7 +153,7 @@ module.exports = function(app) {
 
     this.addVendor = function(vendor) {
       $log.debug('SpendingController.addVendor()');
-      vendor.userId = this.currentUser._id;
+      vendor.userId = this.user._id;
       if(vendor.name == null || vendor.userId == null) {
         $log.error('Vendor must have a name and userId', vendor.name, vendor.userId);
       } else {
@@ -153,6 +161,9 @@ module.exports = function(app) {
           .then((res) => {
             $log.log('Successfully Added Vendor', res.data);
             this.user.vendors.push(res.data);
+            this.showHide.addButtons = 0;
+            this.formValues.vendor.name = undefined;
+
           })
           .catch((err) => {
             $log.error('Error in SpendingController.addVendor()', err);
@@ -175,7 +186,7 @@ module.exports = function(app) {
 
     this.addCategory = function(category) {
       $log.debug('SpendingController.addCategory()');
-      category.userId = this.currentUser._id;
+      category.userId = this.user._id;
       if (category.name == null || category.userId == null) {
         $log.error('Category must have a name and userId', category.name, category.userId);
       } else {
@@ -183,9 +194,12 @@ module.exports = function(app) {
           .then((res) => {
             $log.log('Successfully Added Category', res.data);
             this.user.categories.push(res.data);
+            this.showHide.addButtons = 0;
+            this.formValues.category.name = undefined;
           })
           .catch((err) => {
             $log.error('Error in SpendingController.addCategory()');
+            // add error response
           });
       }
     }
@@ -216,7 +230,9 @@ module.exports = function(app) {
             } else {
               this.user.categories[index].subcategories = [res.data];
             }
-          })
+            this.showHide.addButtons = 0;
+            this.formValues.subcategory = {name: undefined, supercategory: undefined};
+          });
       }
     }
 
@@ -236,6 +252,7 @@ module.exports = function(app) {
     this.initSpending = function() {
       this.checkNoUser();
       this.getUserData();
+      $log.log('this', this);
     }
 
   }]);

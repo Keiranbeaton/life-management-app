@@ -4,10 +4,40 @@ section.transaction-left {
   margin: 10%;
   header {
     @extend .kb-container;
+    h2 {
+      font-size: 1rem;
+      text-align: center;
+    }
     button.kb-switch {
       display: inline-block;
       font-size: 0.667rem;
       width: 50%;
+    }
+  }
+  section.transaction-list {
+    ul.transaction-list {
+      width: 100%;
+      background-color: $kb-color1;
+      li.single-transaction {
+        display: block;
+        width: 100%;
+        &.kb-labels {
+          background-color: $kb-color2;
+          li {
+            border: thin black solid;
+          }
+        }
+        ul.single-transaction {
+          @extend .kb-container;
+          width: 100%;
+          li {
+            display: inline-block;
+            font-size: 0.833rem;
+            width: 25%;
+            text-align: center;
+          }
+        }
+      }
     }
   }
   section.transaction-add {
@@ -40,6 +70,10 @@ section.transaction-left {
             display: inline-block;
             width: 95%;
             border: none;
+            &:focus {
+              outline-offset: none;
+              outline: none;
+            }
           }
         }
       }
