@@ -1,7 +1,7 @@
 'use strict';
 
 module.exports = function(app) {
-  app.controller('SpendingController', ['$http', '$log', '$scope', '$location', 'auth', 'moment', 'd3Service', function($http, $log, $scope, $location, auth, moment, d3Service) {
+  app.controller('SpendingController', ['$http', '$log', '$scope', '$location', 'auth', 'moment', 'd3', function($http, $log, $scope, $location, auth, moment, d3) {
     this.currentUser = auth.currentUser;
     this.transactions = {};
     this.formValues = {vendor: {}, category: {}, subcategory: {}, transaction: {}};
