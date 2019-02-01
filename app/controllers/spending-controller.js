@@ -1,22 +1,24 @@
 'use strict';
 
 module.exports = function(app) {
-  app.controller('SpendingController', ['$http', '$log', '$scope', '$location', 'auth', 'moment', function($http, $log, $scope, $location, auth, moment) {
+  app.controller('SpendingController', ['$http', '$log', '$scope', '$location', 'auth', 'moment', 'd3Service', function($http, $log, $scope, $location, auth, moment, d3Service) {
     this.currentUser = auth.currentUser;
     this.transactions = {};
     this.formValues = {vendor: {}, category: {}, subcategory: {}, transaction: {}};
     this.showHide = {addButtons: 0, leftContainer: 1};
-    
+
     this.setButtons = function(num) {
       if (this.showHide.addButtons === num) {
         this.showHide.addButtons = 0;
       } else {
         this.showHide.addButtons = num;
       }
+      this.formValues = {vendor: {}, category: {}, subcategory: {}, transaction: {}};
     }
 
     this.setLeft = function(num) {
       this.showHide.leftContainer = num;
+      this.formValues = {vendor: {}, category: {}, subcategory: {}, transaction: {}};
     }
 
     this.checkNoUser = function() {

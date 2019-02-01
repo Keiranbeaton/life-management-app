@@ -4,6 +4,7 @@ section.transaction-left {
   margin: 10%;
   header {
     @extend .kb-container;
+    padding-top: 0px;
     h2 {
       font-size: 1rem;
       text-align: center;
@@ -23,13 +24,21 @@ section.transaction-left {
         width: 100%;
         &.kb-labels {
           background-color: $kb-color2;
+          ul.single-transaction {
+            padding: 0;
+          }
           li {
             border: thin black solid;
+            padding-top: 0.166rem;
+            padding-bottom: 0.166rem;
           }
         }
         ul.single-transaction {
           @extend .kb-container;
           width: 100%;
+          border: thin black solid;
+          padding-top: 0.333rem;
+          padding-bottom: 0.333rem;
           li {
             display: inline-block;
             font-size: 0.833rem;

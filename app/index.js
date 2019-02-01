@@ -7,6 +7,7 @@ const angular = require('angular');
 const angularRoute = require('angular-route');
 const angularJWT = require('angular-jwt');
 const angularMoment = require('angular-moment');
+const d3 = require('d3');
 const lifeApp = angular.module('lifeApp', [angularRoute, angularMoment, angularJWT]);
 lifeApp.constant('moment', require('moment-timezone'));
 
