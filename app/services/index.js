@@ -2,5 +2,5 @@
 
 module.exports = (app) => {
   require('./auth')(app);
-  require('./transaction')(app);
+  require('./d3service')(app);
 };

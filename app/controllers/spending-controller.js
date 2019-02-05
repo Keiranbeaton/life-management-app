@@ -5,7 +5,27 @@ module.exports = function(app) {
     this.currentUser = auth.currentUser;
     this.transactions = {};
     this.formValues = {vendor: {}, category: {}, subcategory: {}, transaction: {}};
-    this.showHide = {addButtons: 0, leftContainer: 1};
+    this.showHide = {addButtons: 0, leftContainer: 1, compareChart: 0};
+
+    const weeklyChart = d3.select('#weekly');
+    const monthlyChart = d3.select('#monthly');
+
+    // timeObj = {categoryNames: [''], categories: []{name: '', subcategoryNames: [''], subcategories: {name: '', transactions: [{userId: '', date: Date(), amount: 00, vendor: {}, category: {}, subcategory: {}, text: '', isRecurring: false, interval: ''}]}}}
+
+    // d3 format [[], [], []]
+    this.sortData = function(timeObj) {
+      timeObj.categories.forEach((cat) => {
+
+      });
+    }
+
+    this.sort2 = function(catObj) {
+
+    }
+    // {name:'', transactions: [{userId: '', date: {}, amount: 00, vendor: {}, category: {}, subcategory: {}, etc}]}
+    this.sort3 = function(subcatObj) {
+      
+    }
 
     this.setButtons = function(num) {
       if (this.showHide.addButtons === num) {
@@ -151,7 +171,6 @@ module.exports = function(app) {
           // Add error response
         });
     }
-
 
     this.addVendor = function(vendor) {
       $log.debug('SpendingController.addVendor()');
