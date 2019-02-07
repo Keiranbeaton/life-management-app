@@ -50,12 +50,10 @@ module.exports = function(app) {
 
     this.sortWeek = function(trans) {
       $log.debug('SpendingController.sortWeek()');
-      let now = moment();
-      let startOfWeek = moment().startOf('week');
       let transMoment = moment(trans.date);
 
       for (let i = 0; i < 12; i++) {
-        if(transMoment.isAfter(startOfWeek.subtract((7 * i), 'd')) || transMoment.isSame(startOfWeek.subtract((7 * i), 'd'))) {
+        if(transMoment.isAfter(moment().startOf('week').subtract((7 * i), 'd')) || transMoment.isSame(moment().startOf('week').subtract((7 * i), 'd'))) {
           this.transactions.weeks[i].allTransactions.push(trans);
           this.transactions.weeks[i].chartCategories[trans.category.name] += trans.amount;
           this.transactiona.weeks[i].chartSubcategories[trans.subcategory.name] += trans.amount;
@@ -66,12 +64,10 @@ module.exports = function(app) {
 
     this.deleteFromWeek = function(trans) {
       $log.debug('SpendingController.deleteFromWeek()');
-      let now = moment();
-      let startOfWeek = moment().startOf('week');
       let transMoment = moment(trans.date);
 
       for (let i = 0; i < 12; i++) {
-        if (transMoment.isAfter(startOfWeek.subtract((7 * i), 'd')) || transMoment.isSame(startOfWeek.subtract((7 * i), 'd'))) {
+        if (transMoment.isAfter(moment().startOf('week').subtract((7 * i), 'd')) || transMoment.isSame(moment().startOf('week').subtract((7 * i), 'd'))) {
           this.transactions.weeks[i].allTransactions.splice(this.transactions.weeks[i].indexOf(trans), 1);
           this.transactions.weeks[i].chartCategories[trans.category.name] -= trans.amount;
           this.transactions.weeks[i].chartSubcategories[trans.subcategory.name] -= trans.amount;
@@ -82,11 +78,10 @@ module.exports = function(app) {
 
     this.sortMonth = function(trans) {
       $log.debug('SpendingController.sortMonth()');
-      let now = moment();
       let transMoment = moment(trans.date);
 
       for(let i = 0; i < 13; i++) {
-        if(transMoment.month() === now.subtract(i, 'M').month() && transMoment.year() === now.subtract(i, 'M').year()) {
+        if(transMoment.month() === moment().subtract(i, 'M').month() && transMoment.year() === moment().subtract(i, 'M').year()) {
           this.transactions.months[i].allTransactions.push(trans);
           this.transactions.months[i].chartCategories[trans.category.name] += trans.amount;
           this.transactions.months[i].chartSubcategories[trans.subcategory.name] += trans.amount;
@@ -97,11 +92,10 @@ module.exports = function(app) {
 
     this.deleteFromMonth = function(trans) {
       $log.debug('SpendingController.deleteFromMonth()');
-      let now = moment();
       let transMoment = moment(trans.date);
 
       for(let i = 0; i < 12; i++) {
-        if(transMoment.month() === now.subtract(i, 'M').month() && transMoment.year() === now.subtract(i, 'M').year()) {
+        if(transMoment.month() === moment().subtract(i, 'M').month() && transMoment.year() === moment().subtract(i, 'M').year()) {
           this.transactions.months[i].allTransactions.splice(this.transactions.months[i].allTransactions.indexOf(trans), 1);
           this.transactions.months[i].chartCategories[trans.category.name] -= trans.amount;
           this.transactions.months[i].chartSubcategories[trans.subcategory.name] -= trans.amount;
@@ -118,9 +112,10 @@ module.exports = function(app) {
 
     this.addTransaction = function(trans) {
       $log.debug('SpendingController.addTransaction()');
-      let dateMoment = moment(trans.date);
-      if (dateMoment.isAfter(moment(), 'day')) {
+      let transMoment = moment(trans.date);
+      if (transMoment.isAfter(moment(), 'day')) {
         $log.error('Date Cannot be in the future');
+        //handle error
       } else {
         trans.userId = this.user._id;
         if (trans.date == null || trans.amount == null || trans.category == null || trans.subcategory == null) {
@@ -236,6 +231,9 @@ module.exports = function(app) {
             }
             this.showHide.addButtons = 0;
             this.formValues.subcategory = {name: undefined, supercategory: undefined};
+          }, (err) => {
+            $log.error('Error in SpendingController.addSubcategory()');
+            //handle error
           });
       }
     }
