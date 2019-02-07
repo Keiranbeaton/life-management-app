@@ -6,6 +6,7 @@ module.exports = function(app) {
     this.transactions = {};
     this.formValues = {vendor: {}, category: {}, subcategory: {}, transaction: {}};
     this.showHide = {addButtons: 0, leftContainer: 1, compareChart: 0};
+    this.selectedTransactions = [];
 
     const weeklyChart = d3.select('#weekly');
     const monthlyChart = d3.select('#monthly');

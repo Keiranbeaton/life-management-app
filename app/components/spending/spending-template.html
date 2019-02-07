@@ -65,13 +65,13 @@
       <ul class="transaction-list">
         <li class="single-transaction kb-labels">
           <ul class="single-transaction">
-            <li class="date">Date</li>
+            <li class="date">Date</li>r
             <li class="vendor">Vendor</li>
             <li class="category">Category</li>
             <li class="amount">Amount</li>
           </ul>
         </li>
-        <li  class="single-transaction" ng-repeat="transaction in $ctrl.user.transactions">
+        <li  class="single-transaction" ng-repeat="transaction in $ctrl.selectedTransactions">
           <ul class="single-transaction">
             <li class="date">{{transaction.date | date:'shortDate'}}</li>
             <li class="vendor">{{transaction.vendor.name}}</li>

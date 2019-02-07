@@ -2,7 +2,7 @@
 
 module.exports = function(app) {
 
-  app.controller('AuthController', ['$http', '$location', '$window', '$log', '$scope', 'auth', 'transaction', function($http, $location, $window, $log, $scope, auth, transaction) {
+  app.controller('AuthController', ['$http', '$location', '$window', '$log', '$scope', 'auth', function($http, $location, $window, $log, $scope, auth) {
     this.currentUser = {};
 
     this.signup = function(user) {
@@ -14,6 +14,7 @@ module.exports = function(app) {
           $location.path('/home');
         }, (err) => {
           $log.error('Error in AuthController.signup: ', err);
+          //handle error
         });
     };
 
@@ -26,6 +27,7 @@ module.exports = function(app) {
           $location.path('/home');
         }, (err) => {
           $log.error('Error in AuthController.login: ', err);
+          //handle error
         });
     };
 

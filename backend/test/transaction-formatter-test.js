@@ -69,23 +69,8 @@ describe('Transaction Formatter Tests', function() {
   });
 
   it('Sort transactions', function(done) {
-    expect(testObj.weeks[0].categoryNames.length).to.eql(1);
-    expect(testObj.weeks[0].categories.length).to.eql(1);
-    expect(testObj.weeks[0].categories[0]).to.have.property('name');
-    expect(testObj.weeks[0].categories[0]).to.have.property('subcategoryNames');
-    expect(testObj.weeks[0].categories[0]).to.have.property('subcategories');
-    expect(testObj.weeks[0].categories[0].subcategories.length).to.eql(2);
-    expect(testObj.weeks[0].categories[0].subcategoryNames.length).to.eql(2);
-    expect(testObj.weeks[0].categories[0].subcategories[0]).to.have.property('name');
-    expect(testObj.weeks[0].categories[0].subcategories[0]).to.have.property('transactions');
-    expect(testObj.weeks[0].categories[0].subcategories[0].transactions.length).to.eql(2);
-    expect(testObj.weeks[0].categories[0].subcategories[1].transactions.length).to.eql(1);
-    expect(testObj.months[0].categories[0].subcategories[0].transactions.length).to.eql(2);
-    expect(testObj.months[0].categories[0].subcategories[1].transactions.length).to.eql(1);
-    expect(testObj.months[1].categories.length).to.eql(1);
-    expect(testObj.months[1].categories[0].subcategories.length).to.eql(1);
-    expect(testObj.months[1].categories[0].subcategories[0].transactions.length).to.eql(1);
-    expect(testObj.months[1].categories[0].subcategories[0].transactions[0].amount).to.eql(40);
+    expect(testObj.weeks[0].allTransactions.length).to.eql(2);
+    expect(testObj.months[1].allTransactions.length).to.eql(1);
     done();
   });
 });
