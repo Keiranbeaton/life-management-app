@@ -38,7 +38,7 @@ userRouter.get('/transactions/:id', (req, res, next) => {
         res.send({transactions: formatted, user: user});
       }).catch(err => next(createError(400, err.message)));
     } else {
-      res.send({transactions: transactionFormatter.return, user: user});
+      res.send({transactions: transactionFormatter.transObject, user: user});
     }
   }).catch(err => next(createError(404, err.message)));
 });

@@ -10,23 +10,6 @@ module.exports = function(app) {
     const weeklyChart = d3.select('#weekly');
     const monthlyChart = d3.select('#monthly');
 
-    // timeObj = {categoryNames: [''], categories: []{name: '', subcategoryNames: [''], subcategories: {name: '', transactions: [{userId: '', date: Date(), amount: 00, vendor: {}, category: {}, subcategory: {}, text: '', isRecurring: false, interval: ''}]}}}
-
-    // d3 format [[], [], []]
-    this.sortData = function(timeObj) {
-      timeObj.categories.forEach((cat) => {
-
-      });
-    }
-
-    this.sort2 = function(catObj) {
-
-    }
-    // {name:'', transactions: [{userId: '', date: {}, amount: 00, vendor: {}, category: {}, subcategory: {}, etc}]}
-    this.sort3 = function(subcatObj) {
-      
-    }
-
     this.setButtons = function(num) {
       if (this.showHide.addButtons === num) {
         this.showHide.addButtons = 0;
@@ -64,44 +47,72 @@ module.exports = function(app) {
         });
     }
 
-    this.formatTransaction = function(dateInt, transObj, returnObj) {
-      $log.debug('SpendingController.formatTransaction()');
-      if(returnObj[dateInt].categoryNames.includes(transObj.category.name)) {
-        let catIndex = returnObj[dateInt].categories.map(function(ele) {return ele.name;}).indexOf(transObj.category.name);
-        if (returnObj[dateInt].categories[catIndex].subcategoryNames.includes(transObj.subcategory.name)) {
-          let subIndex = returnObj[dateInt].categories[catIndex].subcategories.map(function(ele) {return ele.name}).indexOf(transObj.subcategory.name);
-          returnObj[dateInt].categories[catIndex].subcategories[subIndex].transactions.push(transObj);
-        } else {
-          returnObj[dateInt].categories[catIndex].subcategoryNames.push(transObj.subcategory.name);
-          returnObj[dateInt].categories[catIndex].subcategories.push({name: transObj.subcategory.name, transactions: []});
-          returnObj[dateInt].categories[catIndex].subcategories[returnObj[dateInt].categories[catIndex].subcategories.length - 1].transactions.push(transObj);
-        }
-      } else {
-        returnObj[dateInt].categoryNames.push(transObj.category.name);
-        returnObj[dateInt].categories.push({name: transObj.category.name, subcategories: [], subcategoryNames: []});
-        returnObj[dateInt].categories[returnObj[dateInt].categories.length - 1].subcategoryNames.push(transObj.subcategory.name);
-        returnObj[dateInt].categories[returnObj[dateInt].categories.length - 1].subcategories.push({name: transObj.subcategory.name, transactions: []});
-        returnObj[dateInt].categories[returnObj[dateInt].categories.length - 1].subcategories[0].transactions.push(transObj);
-      }
-    }
-
-    this.placeTransaction = function(trans) {
-      $log.debug('SpendingController.placeTransaction()');
+    this.sortWeek = function(trans) {
+      $log.debug('SpendingController.sortWeek()');
       let now = moment();
       let startOfWeek = moment().startOf('week');
       let transMoment = moment(trans.date);
+
       for (let i = 0; i < 12; i++) {
         if(transMoment.isAfter(startOfWeek.subtract((7 * i), 'd')) || transMoment.isSame(startOfWeek.subtract((7 * i), 'd'))) {
-          this.formatTransaction(i, trans, this.transactions.weeks);
+          this.transactions.weeks[i].allTransactions.push(trans);
+          this.transactions.weeks[i].chartCategories[trans.category.name] += trans.amount;
+          this.transactiona.weeks[i].chartSubcategories[trans.subcategory.name] += trans.amount;
           break;
         }
       }
+    }
+
+    this.deleteFromWeek = function(trans) {
+      $log.debug('SpendingController.deleteFromWeek()');
+      let now = moment();
+      let startOfWeek = moment().startOf('week');
+      let transMoment = moment(trans.date);
+
+      for (let i = 0; i < 12; i++) {
+        if (transMoment.isAfter(startOfWeek.subtract((7 * i), 'd')) || transMoment.isSame(startOfWeek.subtract((7 * i), 'd'))) {
+          this.transactions.weeks[i].allTransactions.splice(this.transactions.weeks[i].indexOf(trans), 1);
+          this.transactions.weeks[i].chartCategories[trans.category.name] -= trans.amount;
+          this.transactions.weeks[i].chartSubcategories[trans.subcategory.name] -= trans.amount;
+          break;
+        }
+      }
+    }
+
+    this.sortMonth = function(trans) {
+      $log.debug('SpendingController.sortMonth()');
+      let now = moment();
+      let transMoment = moment(trans.date);
+
+      for(let i = 0; i < 13; i++) {
+        if(transMoment.month() === now.subtract(i, 'M').month() && transMoment.year() === now.subtract(i, 'M').year()) {
+          this.transactions.months[i].allTransactions.push(trans);
+          this.transactions.months[i].chartCategories[trans.category.name] += trans.amount;
+          this.transactions.months[i].chartSubcategories[trans.subcategory.name] += trans.amount;
+          break;
+        }
+      }
+    }
+
+    this.deleteFromMonth = function(trans) {
+      $log.debug('SpendingController.deleteFromMonth()');
+      let now = moment();
+      let transMoment = moment(trans.date);
+
       for(let i = 0; i < 12; i++) {
-        if (transMoment.month() === now.subtract(i, 'M').month() && transMoment.year() === now.subtract(i, 'M').year()) {
-          this.formatTransaction(i, trans, this.transactions.months);
+        if(transMoment.month() === now.subtract(i, 'M').month() && transMoment.year() === now.subtract(i, 'M').year()) {
+          this.transactions.months[i].allTransactions.splice(this.transactions.months[i].allTransactions.indexOf(trans), 1);
+          this.transactions.months[i].chartCategories[trans.category.name] -= trans.amount;
+          this.transactions.months[i].chartSubcategories[trans.subcategory.name] -= trans.amount;
           break;
         }
       }
+    }
+
+    this.formatTransaction = function(trans) {
+      $log.debug('SpendingController.formatTransaction()');
+      this.sortMonth(trans);
+      this.sortWeek(trans);
     }
 
     this.addTransaction = function(trans) {
@@ -117,7 +128,7 @@ module.exports = function(app) {
           $http.post(this.baseUrl + '/transaction', trans, this.config)
           .then((res) => {
             $log.log("Successfully added transaction", res.data);
-            this.placeTransaction(res.data);
+            this.formatTransaction(res.data);
             this.showHide.addButtons = 0;
             this.formValues.transaction = {date: undefined, amount: undefined, vendor: undefined, category: undefined, subcategory: undefined};
           })
@@ -134,37 +145,8 @@ module.exports = function(app) {
       $http.delete(this.baseUrl + '/transaction' + trans._id, this.config)
         .then((res) => {
           $log.log('Successfully Deleted Transaction', res.data);
-          for(let i = 0; i < this.transactions.weeks.length - 1; i++) {
-            for(let j = 0; j < this.transactions.weeks[i].categories.length - 1; j++) {
-              for(let k = 0; k < this.transactions.weeks[i].categories[j].subcategories.length - 1; k++) {
-                for(let m = 0; m < this.transactions.weeks[i].categories[j].subcategories[k].transactions.length - 1; m++) {
-                  if(this.transactions.weeks[i].categories[j].subcategories[k].transactions[m]._id === res.data._id) {
-                    this.transactions.weeks[i].categories[j].subcategories[k].transactions.splice(m, 1);
-                    m = this.transactions.weeks[i].categories[j].subcategories[k].transactions.length;
-                    k = this.transactions.weeks[i].categories[j].sucategories.length;
-                    j = this.transactions.weeks[i].categories.length;
-                    i = this.transactions.weeks.length;
-                  }
-                }
-              }
-            }
-          }
-
-          for(let i = 0; i < this.transactions.months.length - 1; i++) {
-            for(let j = 0; j < this.transactions.months[i].categories.length - 1; j++) {
-              for(let k = 0; k < this.transactions.months[i].categories[j].subcategories.length - 1; k++) {
-                for (let m = 0; m < this.transactions.months[i].categories[j].subcategories[k].transactions.length - 1; m++) {
-                  if(this.transactions.months[i].categories[j].subcategories[k].transactions[m]._id === res.data._id) {
-                    this.transactions.months[i].categories[j].subcategories[k].transactions.splice(m, 1);
-                    m = this.transactions.months[i].categories[j].subcategories[k].transactions.length;
-                    k = this.transactions.months[i].categories[j].subcategories.length;
-                    k = this.transactions.months[i].categories.length;
-                    i = this.transactions.months.length;
-                  }
-                }
-              }
-            }
-          }
+          this.deleteFromWeek(res.data);
+          this.deleteFromMonth(res.data);
         })
         .catch((err) => {
           $log.error('Error in SpendingController.removeTransaction()', err);
