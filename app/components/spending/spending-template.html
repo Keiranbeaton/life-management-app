@@ -63,7 +63,7 @@
         <h2>Recent Transactions</h2>
       </header>
       <div class="transaction-controls">
-        <select ng-model="$ctrl.selectedTransactions" ng-options="month for monthObj in $ctrl.transactions.months"></select>
+        <select ng-model="$ctrl.selectedTransactions" ng-options="month as month.label for month in $ctrl.transactions.months"></select>
       </div>
       <ul class="transaction-list">
         <li class="single-transaction kb-labels">
@@ -74,7 +74,7 @@
             <li class="amount">Amount</li>
           </ul>
         </li>
-        <li  class="single-transaction" ng-repeat="transaction in $ctrl.selectedTransactions">
+        <li  class="single-transaction" ng-repeat="transaction in $ctrl.selectedTransactions.allTransactions">
           <ul class="single-transaction">
             <li class="date">{{transaction.date | date:'shortDate'}}</li>
             <li class="vendor">{{transaction.vendor.name}}</li>

@@ -22,18 +22,18 @@ transactionFormatter.transactionObject = {
   ],
   months: [
     {label: moment().format("MMM"), allTransactions: [], chartCategories: {}, chartSubcategories: {}},
-    {label: moment().subtract(1, 'M').format("MMM"), allTransactions: [], chartCategories: {}, chartSubcategories: {}},
-    {label: moment().subtract(2, 'M').format("MMM"), allTransactions: [], chartCategories: {}, chartSubcategories: {}},
-    {label: moment().subtract(3, 'M').format("MMM"), allTransactions: [], chartCategories: {}, chartSubcategories: {}},
-    {label: moment().subtract(4, 'M').format("MMM"), allTransactions: [], chartCategories: {}, chartSubcategories: {}},
-    {label: moment().subtract(5, 'M').format("MMM"), allTransactions: [], chartCategories: {}, chartSubcategories: {}},
-    {label: moment().subtract(6, 'M').format("MMM"), allTransactions: [], chartCategories: {}, chartSubcategories: {}},
-    {label: moment().subtract(7, 'M').format("MMM"), allTransactions: [], chartCategories: {}, chartSubcategories: {}},
-    {label: moment().subtract(8, 'M').format("MMM"), allTransactions: [], chartCategories: {}, chartSubcategories: {}},
-    {label: moment().subtract(9, 'M').format("MMM"), allTransactions: [], chartCategories: {}, chartSubcategories: {}},
-    {label: moment().subtract(10, 'M').format("MMM"), allTransactions: [], chartCategories: {}, chartSubcategories: {}},
-    {label: moment().subtract(11, 'M').format("MMM"), allTransactions: [], chartCategories: {}, chartSubcategories: {}},
-    {label: moment().subtract(12, 'M').format("MMM"), allTransactions: [], chartCategories: {}, chartSubcategories: {}}
+    {label: moment().subtract(1, 'M').format("MMM YY"), allTransactions: [], chartCategories: {}, chartSubcategories: {}},
+    {label: moment().subtract(2, 'M').format("MMM YY"), allTransactions: [], chartCategories: {}, chartSubcategories: {}},
+    {label: moment().subtract(3, 'M').format("MMM YY"), allTransactions: [], chartCategories: {}, chartSubcategories: {}},
+    {label: moment().subtract(4, 'M').format("MMM YY"), allTransactions: [], chartCategories: {}, chartSubcategories: {}},
+    {label: moment().subtract(5, 'M').format("MMM YY"), allTransactions: [], chartCategories: {}, chartSubcategories: {}},
+    {label: moment().subtract(6, 'M').format("MMM YY"), allTransactions: [], chartCategories: {}, chartSubcategories: {}},
+    {label: moment().subtract(7, 'M').format("MMM YY"), allTransactions: [], chartCategories: {}, chartSubcategories: {}},
+    {label: moment().subtract(8, 'M').format("MMM YY"), allTransactions: [], chartCategories: {}, chartSubcategories: {}},
+    {label: moment().subtract(9, 'M').format("MMM YY"), allTransactions: [], chartCategories: {}, chartSubcategories: {}},
+    {label: moment().subtract(10, 'M').format("MMM YY"), allTransactions: [], chartCategories: {}, chartSubcategories: {}},
+    {label: moment().subtract(11, 'M').format("MMM YY"), allTransactions: [], chartCategories: {}, chartSubcategories: {}},
+    {label: moment().subtract(12, 'M').format("MMM YY"), allTransactions: [], chartCategories: {}, chartSubcategories: {}}
   ],
 }
 

@@ -41,6 +41,7 @@ module.exports = function(app) {
         .then((res) => {
           this.transactions = res.data.transactions;
           this.user = res.data.user;
+          this.selectedTransactions = this.transactions.months[0];
           $log.log('res.data', res.data);
         }, (err) => {
           $log.error('SpendingController.getTransactions()', err);
@@ -120,6 +121,7 @@ module.exports = function(app) {
         trans.userId = this.user._id;
         if (trans.date == null || trans.amount == null || trans.category == null || trans.subcategory == null) {
           $log.error('transaction object incomplete');
+          //handle error
         } else {
           $http.post(this.baseUrl + '/transaction', trans, this.config)
           .then((res) => {
