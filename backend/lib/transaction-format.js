@@ -2,38 +2,38 @@
 
 const moment = require('moment');
 moment().format();
-const date = new Date();
+
 const transactionFormatter = {};
 
 transactionFormatter.transactionObject = {
   weeks: [
-    {allTransactions: [], chartCategories: {}, chartSubcategories: {}},
-    {allTransactions: [], chartCategories: {}, chartSubcategories: {}},
-    {allTransactions: [], chartCategories: {}, chartSubcategories: {}},
-    {allTransactions: [], chartCategories: {}, chartSubcategories: {}},
-    {allTransactions: [], chartCategories: {}, chartSubcategories: {}},
-    {allTransactions: [], chartCategories: {}, chartSubcategories: {}},
-    {allTransactions: [], chartCategories: {}, chartSubcategories: {}},
-    {allTransactions: [], chartCategories: {}, chartSubcategories: {}},
-    { allTransactions: [], chartCategories: {}, chartSubcategories: {}},
-    {allTransactions: [], chartCategories: {}, chartSubcategories: {}},
-    {allTransactions: [], chartCategories: {}, chartSubcategories: {}},
-    {allTransactions: [], chartCategories: {}, chartSubcategories: {}}
+    {label: moment().startOf("week").format("MMM Do"), allTransactions: [], chartCategories: {}, chartSubcategories: {}},
+    {label: moment().startOf("week").subtract(7, 'd').format("MMM Do"), allTransactions: [], chartCategories: {}, chartSubcategories: {}},
+    {label: moment().startOf("week").subtract(14, 'd').format("MMM Do"), allTransactions: [], chartCategories: {}, chartSubcategories: {}},
+    {label: moment().startOf("week").subtract(21, 'd').format("MMM Do"), allTransactions: [], chartCategories: {}, chartSubcategories: {}},
+    {label: moment().startOf("week").subtract(28, 'd').format("MMM Do"), allTransactions: [], chartCategories: {}, chartSubcategories: {}},
+    {label: moment().startOf("week").subtract(35, 'd').format("MMM Do"), allTransactions: [], chartCategories: {}, chartSubcategories: {}},
+    {label: moment().startOf("week").subtract(42, 'd').format("MMM Do"), allTransactions: [], chartCategories: {}, chartSubcategories: {}},
+    {label: moment().startOf("week").subtract(49, 'd').format("MMM Do"), allTransactions: [], chartCategories: {}, chartSubcategories: {}},
+    {label: moment().startOf("week").subtract(56, 'd').format("MMM Do"), allTransactions: [], chartCategories: {}, chartSubcategories: {}},
+    {label: moment().startOf("week").subtract(63, 'd').format("MMM Do"), allTransactions: [], chartCategories: {}, chartSubcategories: {}},
+    {label: moment().startOf("week").subtract(70, 'd').format("MMM Do"), allTransactions: [], chartCategories: {}, chartSubcategories: {}},
+    {label: moment().startOf("week").subtract(77, 'd').format("MMM Do"), allTransactions: [], chartCategories: {}, chartSubcategories: {}}
   ],
   months: [
-    {allTransactions: [], chartCategories: {}, chartSubcategories: {}},
-    {allTransactions: [], chartCategories: {}, chartSubcategories: {}},
-    {allTransactions: [], chartCategories: {}, chartSubcategories: {}},
-    {allTransactions: [], chartCategories: {}, chartSubcategories: {}},
-    {allTransactions: [], chartCategories: {}, chartSubcategories: {}},
-    {allTransactions: [], chartCategories: {}, chartSubcategories: {}},
-    {allTransactions: [], chartCategories: {}, chartSubcategories: {}},
-    {allTransactions: [], chartCategories: {}, chartSubcategories: {}},
-    {allTransactions: [], chartCategories: {}, chartSubcategories: {}},
-    {allTransactions: [], chartCategories: {}, chartSubcategories: {}},
-    {allTransactions: [], chartCategories: {}, chartSubcategories: {}},
-    {allTransactions: [], chartCategories: {}, chartSubcategories: {}},
-    {allTransactions: [], chartCategories: {}, chartSubcategories: {}}
+    {label: moment().format("MMM"), allTransactions: [], chartCategories: {}, chartSubcategories: {}},
+    {label: moment().subtract(1, 'M').format("MMM"), allTransactions: [], chartCategories: {}, chartSubcategories: {}},
+    {label: moment().subtract(2, 'M').format("MMM"), allTransactions: [], chartCategories: {}, chartSubcategories: {}},
+    {label: moment().subtract(3, 'M').format("MMM"), allTransactions: [], chartCategories: {}, chartSubcategories: {}},
+    {label: moment().subtract(4, 'M').format("MMM"), allTransactions: [], chartCategories: {}, chartSubcategories: {}},
+    {label: moment().subtract(5, 'M').format("MMM"), allTransactions: [], chartCategories: {}, chartSubcategories: {}},
+    {label: moment().subtract(6, 'M').format("MMM"), allTransactions: [], chartCategories: {}, chartSubcategories: {}},
+    {label: moment().subtract(7, 'M').format("MMM"), allTransactions: [], chartCategories: {}, chartSubcategories: {}},
+    {label: moment().subtract(8, 'M').format("MMM"), allTransactions: [], chartCategories: {}, chartSubcategories: {}},
+    {label: moment().subtract(9, 'M').format("MMM"), allTransactions: [], chartCategories: {}, chartSubcategories: {}},
+    {label: moment().subtract(10, 'M').format("MMM"), allTransactions: [], chartCategories: {}, chartSubcategories: {}},
+    {label: moment().subtract(11, 'M').format("MMM"), allTransactions: [], chartCategories: {}, chartSubcategories: {}},
+    {label: moment().subtract(12, 'M').format("MMM"), allTransactions: [], chartCategories: {}, chartSubcategories: {}}
   ],
 }
 
@@ -119,27 +119,20 @@ const setSubcategoryValue = function(subcategory, transactionArray) {
 }
 
 transactionFormatter.format = function(transArray) {
-  console.log('transArray', transArray);
   let categories = getAllCategories(transArray);
   let subcategories = getAllSubcategories(transArray);
   let monthArray = sortMonth(transArray);
-  console.log('monthArray', monthArray);
   let weekArray = sortWeek(transArray);
-  console.log('weekArray', weekArray);
   placeTransactions(transactionFormatter.transactionObject.months, monthArray);
   placeTransactions(transactionFormatter.transactionObject.weeks, weekArray);
-  // console.log('transactionFormatter.transactionObject.months', transactionFormatter.transactionObject.months);
-  // console.log('transactionFormatter.transactionObject.weeks', transactionFormatter.transactionObject.weeks);
   transactionFormatter.transactionObject.weeks.forEach((week) => {
     week.chartCategories = setChartNames(categories);
     week.chartSubcategories = setChartNames(subcategories);
   });
-  // console.log('transactionFormatter.transactionObject.weeks after setChartNames', transactionFormatter.transactionObject.weeks);
   transactionFormatter.transactionObject.months.forEach((month) => {
     month.chartCategories = setChartNames(categories);
     month.chartSubcategories = setChartNames(subcategories);
   });
-  // console.log('transactionFormatter.transactionObject.months after setChartNames', transactionFormatter.transactionObject.months);
   for(let i = 0; i < categories.length; i++) {
     transactionFormatter.transactionObject.months.forEach((month) => {
       month.chartCategories[categories[i]] = setCategoryValue(categories[i], month.allTransactions);
@@ -148,8 +141,6 @@ transactionFormatter.format = function(transArray) {
       week.chartCategories[categories[i]] = setCategoryValue(categories[i], week.allTransactions);
     });
   }
-  // console.log('transactionFormatter.transactionObject.months after setCategoryValue', transactionFormatter.transactionObject.months);
-  // console.log('transactionFormatter.transactionObject.weeks after setCategoryValue', transactionFormatter.transactionObject.weeks);
   for(let i = 0; i < subcategories.length; i++) {
     transactionFormatter.transactionObject.months.forEach((month) => {
       month.chartSubcategories[subcategories[i]] = setSubcategoryValue(subcategories[i], month.allTransactions);
@@ -158,8 +149,6 @@ transactionFormatter.format = function(transArray) {
       week.chartSubcategories[subcategories[i]] = setSubcategoryValue(subcategories[i], week.allTransactions);
     });
   }
-  // console.log('transactionFormatter.transactionObject.months after setSubcategoryValue', transactionFormatter.transactionObject.months);
-  // console.log('transactionFormatter.transactionObject.weeks after setSubcategoryValue', transactionFormatter.transactionObject.weeks);
 
   return transactionFormatter.transactionObject;
 }

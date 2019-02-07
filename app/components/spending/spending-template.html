@@ -62,6 +62,9 @@
       <header>
         <h2>Recent Transactions</h2>
       </header>
+      <div class="transaction-controls">
+        <select ng-model="$ctrl.selectedTransactions" ng-options="month for monthObj in $ctrl.transactions.months"></select>
+      </div>
       <ul class="transaction-list">
         <li class="single-transaction kb-labels">
           <ul class="single-transaction">
