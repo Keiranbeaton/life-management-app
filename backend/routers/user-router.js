@@ -33,6 +33,7 @@ userRouter.get('/transactions/:id', (req, res, next) => {
   debug('GET /api/user/transactions/:id');
   User.findById(req.params.id).populate('vendors').populate({path: 'categories', populate: {path: 'subcategories'}}).populate({path: 'transactions', populate: {path: 'vendor category subcategory'}}).then((user) => {
     if(user.transactions.length > 0) {
+      console.log('inside if statement');
       Transaction.find({userId: req.params.id}).populate('vendor category subcategory').then((trans) => {
         let formatted = transactionFormatter.format(trans);
         res.send({transactions: formatted, user: user});

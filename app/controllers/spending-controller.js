@@ -11,6 +11,24 @@ module.exports = function(app) {
     const weeklyChart = d3.select('#weekly');
     const monthlyChart = d3.select('#monthly');
 
+    this.initChartCategories = function(transactionOb) {
+      let categoryNames = this.user.categories.map(category => category.name);
+      let stack = d3.stack().keys(categoryNames);
+
+      let rect = monthlyChart.selectAll('g').data()
+    }
+
+    this.getCategoryNames = function(user) {
+      return user.categories.map(category => category.name);
+    }
+
+    this.getSubcategoryNames = function(user) {
+      let returnArray = [];
+      user.categories.forEach((category) => {
+        returnArray = returnArray.concat(category.subcategories.map(sub => sub.name));
+      });
+    }
+
     this.setButtons = function(num) {
       if (this.showHide.addButtons === num) {
         this.showHide.addButtons = 0;
@@ -256,8 +274,9 @@ module.exports = function(app) {
     this.initSpending = function() {
       this.checkNoUser();
       this.getUserData();
-      $log.log('this', this);
     }
+
+
 
   }]);
 }

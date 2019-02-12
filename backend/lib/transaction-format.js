@@ -4,7 +4,6 @@ const moment = require('moment');
 moment().format();
 
 const transactionFormatter = {};
-
 transactionFormatter.transactionObject = {
   weeks: [
     {label: moment().startOf("week").format("MMM Do"), allTransactions: [], chartCategories: {}, chartSubcategories: {}},
@@ -21,7 +20,7 @@ transactionFormatter.transactionObject = {
     {label: moment().startOf("week").subtract(77, 'd').format("MMM Do"), allTransactions: [], chartCategories: {}, chartSubcategories: {}}
   ],
   months: [
-    {label: moment().format("MMM"), allTransactions: [], chartCategories: {}, chartSubcategories: {}},
+    {label: moment().format("MMM YY"), allTransactions: [], chartCategories: {}, chartSubcategories: {}},
     {label: moment().subtract(1, 'M').format("MMM YY"), allTransactions: [], chartCategories: {}, chartSubcategories: {}},
     {label: moment().subtract(2, 'M').format("MMM YY"), allTransactions: [], chartCategories: {}, chartSubcategories: {}},
     {label: moment().subtract(3, 'M').format("MMM YY"), allTransactions: [], chartCategories: {}, chartSubcategories: {}},
@@ -34,7 +33,7 @@ transactionFormatter.transactionObject = {
     {label: moment().subtract(10, 'M').format("MMM YY"), allTransactions: [], chartCategories: {}, chartSubcategories: {}},
     {label: moment().subtract(11, 'M').format("MMM YY"), allTransactions: [], chartCategories: {}, chartSubcategories: {}},
     {label: moment().subtract(12, 'M').format("MMM YY"), allTransactions: [], chartCategories: {}, chartSubcategories: {}}
-  ],
+  ]
 }
 
 const getAllCategories = function(array) {
@@ -105,7 +104,11 @@ const setCategoryValue = function(category, transactionArray) {
     if (trans.category.name === category) return true;
     return false;
   }).reduce((acc, cur) => {
-    return acc + cur.amount;
+    let num = acc + cur.amount;
+    let num2 = num * 100;
+    let num3 = Math.round(num2);
+    let num4 = num3 / 100;
+    return num4;
   }, 0);
 }
 
@@ -114,9 +117,32 @@ const setSubcategoryValue = function(subcategory, transactionArray) {
     if(trans.subcategory.name === subcategory) return true;
     return false;
   }).reduce((acc, cur) => {
-    return acc + cur.amount;
+    let num = acc + cur.amount;
+    let num2 = num * 100;
+    let num3 = Math.round(num2);
+    let num4 = num3 / 100;
+    return num4;
   }, 0);
 }
+
+const createD3Object = function(categoryArray, timeArray, categoryPropertyName) {
+  let returnArray = [];
+  for(let i = 0; i < categoryArray.length; i++) {
+    let helperArray = []
+    for (let j = 0; j < timeArray.length; j++) {
+      let amount = timeArray[j][categoryPropertyName][categoryArray[i]];
+      let startValue = 0
+      if(i !== 0) {
+        startValue = returnArray[i-1][j][1];
+      }
+      let endValue = startValue + amount;
+      helperArray.push([startValue, endValue]);
+    }
+    returnArray.push(helperArray);
+  }
+  return returnArray;
+}
+
 
 transactionFormatter.format = function(transArray) {
   let categories = getAllCategories(transArray);
@@ -149,6 +175,10 @@ transactionFormatter.format = function(transArray) {
       week.chartSubcategories[subcategories[i]] = setSubcategoryValue(subcategories[i], week.allTransactions);
     });
   }
+  transactionFormatter.transactionObject.categoryWeeks = createD3Object(categories, transactionFormatter.transactionObject.weeks, 'chartCategories');
+  transactionFormatter.transactionObject.categoryMonths = createD3Object(categories, transactionFormatter.transactionObject.months, 'chartCategories');
+  transactionFormatter.transactionObject.subcategoryWeeks = createD3Object(subcategories, transactionFormatter.transactionObject.weeks, 'chartSubcategories');
+  transactionFormatter.transactionObject.subcategoryMonths = createD3Object(subcategories, transactionFormatter.transactionObject.months, 'chartSubcategories');
 
   return transactionFormatter.transactionObject;
 }
