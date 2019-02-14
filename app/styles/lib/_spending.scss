@@ -90,6 +90,23 @@ section.transaction-left {
   }
 }
 
+section.transaction-main {
+  header {
+    ul {
+      @extend .kb-container;
+      li {
+        display: inline-block;
+        width: 50%;
+        font-size: 0.833rem;
+        text-align: center;
+        &.selected {
+          
+        }
+      }
+    }
+  }
+}
+
 @media (min-width: 640px) {
 
 }

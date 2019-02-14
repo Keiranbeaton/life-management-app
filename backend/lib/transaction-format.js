@@ -4,7 +4,8 @@ const moment = require('moment');
 moment().format();
 
 const transactionFormatter = {};
-transactionFormatter.transactionObject = {
+transactionFormatter.transactionObject = {};
+transactionFormatter.transactionObject.tableData = {
   weeks: [
     {label: moment().startOf("week").format("MMM Do"), allTransactions: [], chartCategories: {}, chartSubcategories: {}},
     {label: moment().startOf("week").subtract(7, 'd').format("MMM Do"), allTransactions: [], chartCategories: {}, chartSubcategories: {}},
@@ -34,6 +35,13 @@ transactionFormatter.transactionObject = {
     {label: moment().subtract(11, 'M').format("MMM YY"), allTransactions: [], chartCategories: {}, chartSubcategories: {}},
     {label: moment().subtract(12, 'M').format("MMM YY"), allTransactions: [], chartCategories: {}, chartSubcategories: {}}
   ]
+}
+
+transactionFormatter.transactionObject.chartData = {
+  categoryNames: [],
+  subcategoryNames: [],
+  weeks: {labels: [], category: [], subcategory: [], max: 0},
+  months: {labels: [], category: [], subcategory: [], max: 0}
 }
 
 const getAllCategories = function(array) {
@@ -143,42 +151,63 @@ const createD3Object = function(categoryArray, timeArray, categoryPropertyName) 
   return returnArray;
 }
 
+const getMax = function(timeObj) {
+  let totalsArray = timeObj.map((period) => {
+      return period.allTransactions.reduce((acc, cur) => {
+        let num = acc + cur.amount;
+        return Math.round(num * 100) / 100;
+      }, 0);
+    });
+  let sorted = totalsArray.sort((a,b) => b - a);
+  return sorted[0];
+}
+
+const getLabels = function(timeObj) {
+  return timeObj.map(obj => obj.label);
+}
 
 transactionFormatter.format = function(transArray) {
   let categories = getAllCategories(transArray);
   let subcategories = getAllSubcategories(transArray);
   let monthArray = sortMonth(transArray);
   let weekArray = sortWeek(transArray);
-  placeTransactions(transactionFormatter.transactionObject.months, monthArray);
-  placeTransactions(transactionFormatter.transactionObject.weeks, weekArray);
-  transactionFormatter.transactionObject.weeks.forEach((week) => {
+  placeTransactions(transactionFormatter.transactionObject.tableData.months, monthArray);
+  placeTransactions(transactionFormatter.transactionObject.tableData.weeks, weekArray);
+  transactionFormatter.transactionObject.tableData.weeks.forEach((week) => {
     week.chartCategories = setChartNames(categories);
     week.chartSubcategories = setChartNames(subcategories);
   });
-  transactionFormatter.transactionObject.months.forEach((month) => {
+  transactionFormatter.transactionObject.tableData.months.forEach((month) => {
     month.chartCategories = setChartNames(categories);
     month.chartSubcategories = setChartNames(subcategories);
   });
   for(let i = 0; i < categories.length; i++) {
-    transactionFormatter.transactionObject.months.forEach((month) => {
+    transactionFormatter.transactionObject.tableData.months.forEach((month) => {
       month.chartCategories[categories[i]] = setCategoryValue(categories[i], month.allTransactions);
     });
-    transactionFormatter.transactionObject.weeks.forEach((week) => {
+    transactionFormatter.transactionObject.tableData.weeks.forEach((week) => {
       week.chartCategories[categories[i]] = setCategoryValue(categories[i], week.allTransactions);
     });
   }
   for(let i = 0; i < subcategories.length; i++) {
-    transactionFormatter.transactionObject.months.forEach((month) => {
+    transactionFormatter.transactionObject.tableData.months.forEach((month) => {
       month.chartSubcategories[subcategories[i]] = setSubcategoryValue(subcategories[i], month.allTransactions);
     });
-    transactionFormatter.transactionObject.weeks.forEach((week) => {
+    transactionFormatter.transactionObject.tableData.weeks.forEach((week) => {
       week.chartSubcategories[subcategories[i]] = setSubcategoryValue(subcategories[i], week.allTransactions);
     });
   }
-  transactionFormatter.transactionObject.categoryWeeks = createD3Object(categories, transactionFormatter.transactionObject.weeks, 'chartCategories');
-  transactionFormatter.transactionObject.categoryMonths = createD3Object(categories, transactionFormatter.transactionObject.months, 'chartCategories');
-  transactionFormatter.transactionObject.subcategoryWeeks = createD3Object(subcategories, transactionFormatter.transactionObject.weeks, 'chartSubcategories');
-  transactionFormatter.transactionObject.subcategoryMonths = createD3Object(subcategories, transactionFormatter.transactionObject.months, 'chartSubcategories');
+
+  transactionFormatter.transactionObject.chartData.weeks.category = createD3Object(categories, transactionFormatter.transactionObject.tableData.weeks, 'chartCategories');
+  transactionFormatter.transactionObject.chartData.months.category = createD3Object(categories, transactionFormatter.transactionObject.tableData.months, 'chartCategories');
+  transactionFormatter.transactionObject.chartData.weeks.subcategory = createD3Object(subcategories, transactionFormatter.transactionObject.tableData.weeks, 'chartSubcategories');
+  transactionFormatter.transactionObject.chartData.months.subcategory = createD3Object(subcategories, transactionFormatter.transactionObject.tableData.months, 'chartSubcategories');
+  transactionFormatter.transactionObject.chartData.weeks.max = getMax(transactionFormatter.transactionObject.tableData.weeks);
+  transactionFormatter.transactionObject.chartData.months.max = getMax(transactionFormatter.transactionObject.tableData.months);
+  transactionFormatter.transactionObject.chartData.weeks.labels = getLabels(transactionFormatter.transactionObject.tableData.weeks);
+  transactionFormatter.transactionObject.chartData.months.labels = getLabels(transactionFormatter.transactionObject.tableData.months);
+  transactionFormatter.transactionObject.chartData.categoryNames = categories;
+  transactionFormatter.transactionObject.chartData.subcategoryNames = subcategories;
 
   return transactionFormatter.transactionObject;
 }

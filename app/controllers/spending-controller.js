@@ -4,29 +4,104 @@ module.exports = function(app) {
   app.controller('SpendingController', ['$http', '$log', '$scope', '$location', 'auth', 'moment', 'd3', function($http, $log, $scope, $location, auth, moment, d3) {
     this.currentUser = auth.currentUser;
     this.transactions = {};
+    this.d3Variables = {};
     this.formValues = {vendor: {}, category: {}, subcategory: {}, transaction: {}};
     this.showHide = {addButtons: 0, leftContainer: 1, compareChart: 0};
     this.selectedTransactions = [];
+    const margin = {top: 10, right: 10, bottom: 20, left: 40};
+    let width = 320 - margin.left  - margin.right;
+    let height = 560 - margin.top - margin.bottom;
 
-    const weeklyChart = d3.select('#weekly');
-    const monthlyChart = d3.select('#monthly');
+    const svg = d3.select('svg').attr('width', width + margin.left + margin.right).attr('height', height + margin.top + margin.bottom);
+    let categoryNames = [];
+    let subcategoryNames = [];
+    let monthNames = [];
+    let weekNames = [];
 
-    this.initChartCategories = function(transactionOb) {
-      let categoryNames = this.user.categories.map(category => category.name);
-      let stack = d3.stack().keys(categoryNames);
+    this.initMonthChartCategories = function() {
+      $log.debug('initMonthChartCategories()');
 
-      let rect = monthlyChart.selectAll('g').data()
+      let color = d3.scaleOrdinal()
+      .domain(categoryNames)
+      .range(d3.quantize(t => d3.interpolateSpectral(t * 0.8 + 0.1), categoryNames.length).reverse())
+      .unknown('#ccc');
+      let x = d3.scaleBand()
+        .domain(monthNames)
+        .range([margin.left, width - margin.right])
+        .padding(0.1);
+      let y = d3.scaleLinear()
+        .domain([0, this.d3Variables.months.max])
+        .rangeRound([height - margin.bottom, margin.top]);
+
+      let xAxis = g => g
+        .attr('transform', `translate(0,${height - margin.bottom})`)
+        .call(d3.axisBottom(x).tickSizeOuter(0))
+        .call(g => g.selectAll('.domain').remove());
+
+      let yAxis = g => g
+        .attr('transform', `translate(${margin.left}, 0)`)
+        .call(d3.axisLeft(y).ticks(null, 's'))
+        .call(g => g.selectAll('.domain').remove);
+
+      let legend = svg => {
+        const g = svg
+          .attr('font-family', 'sans-serif')
+          .attr('font-size', 10)
+          .attr('text-anchor', 'end')
+        .selectAll('g')
+        .data(categoryNames.slice().reverse())
+        .enter().append('g')
+          .attr('transform', (d, i) => `translate(0,${i * 20})`);
+
+        g.append('rect')
+          .attr('x', -19)
+          .attr('width', 19)
+          .attr('height', 19)
+          .attr('fill', color);
+
+        g.append('text')
+          .attr('x', -24)
+          .attr('y', 9.5)
+          .attr('dy', '0.35em')
+          .text(d => d);
+      }
+
+      svg.append('g')
+      .selectAll('g')
+      .data(this.d3Variables.months.category)
+      .enter().append('g')
+          .attr('fill', (d, i) => color(this.d3Variables.categoryNames[i]))
+        .selectAll('rect')
+        .data(d => d)
+        .enter().append('rect')
+          .attr('x', (d, i) => x(monthNames[i]))
+          .attr('y', d => y(d[1]))
+          .attr('height', d => y(d[0]) - y(d[1]))
+          .attr('width', x.bandwidth());
+
+          svg.append('g')
+          .call(xAxis);
+
+          svg.append('g')
+          .call(yAxis);
+
+          svg.append('g')
+          .attr('transform', `translate(${width - margin.right},${margin.top})`)
+          .call(legend);
+
+          return svg.node();
     }
 
-    this.getCategoryNames = function(user) {
-      return user.categories.map(category => category.name);
+    const initWeekChartCategories = function() {
+      $log.debug('initWeekChartCategories');
     }
 
-    this.getSubcategoryNames = function(user) {
-      let returnArray = [];
-      user.categories.forEach((category) => {
-        returnArray = returnArray.concat(category.subcategories.map(sub => sub.name));
-      });
+    const initMonthChartSubcategories = function() {
+      $log.debug('initMonthChartSubcategories');
+    }
+
+    const initWeekChartSubcategories = function() {
+      $log.debug('initWeekChartSubcategories');
     }
 
     this.setButtons = function(num) {
@@ -57,10 +132,16 @@ module.exports = function(app) {
       $log.debug('SpendingController.getUserData()');
       $http.get(this.baseUrl + '/user/transactions/' + this.currentUser.userId, this.config)
         .then((res) => {
-          this.transactions = res.data.transactions;
+          $log.log('res.data', res.data);
+          this.transactions = res.data.transactions.tableData;
+          this.d3Variables = res.data.transactions.chartData;
           this.user = res.data.user;
           this.selectedTransactions = this.transactions.months[0];
-          $log.log('res.data', res.data);
+          categoryNames = this.d3Variables.categoryNames;
+          subcategoryNames = this.d3Variables.subcategoryNames;
+          monthNames = this.d3Variables.months.labels;
+          weekNames = this.d3Variables.weeks.labels;
+          this.initMonthChartCategories();
         }, (err) => {
           $log.error('SpendingController.getTransactions()', err);
           // add error response
@@ -133,17 +214,17 @@ module.exports = function(app) {
       $log.debug('SpendingController.addTransaction()');
       let transMoment = moment(trans.date);
       if (transMoment.isAfter(moment(), 'day')) {
-        $log.error('Date Cannot be in the future');
-        //handle error
+        $log.error('Date cannot be in the future');
+        //error response
       } else {
         trans.userId = this.user._id;
         if (trans.date == null || trans.amount == null || trans.category == null || trans.subcategory == null) {
-          $log.error('transaction object incomplete');
-          //handle error
+          $log.error('transaction object must have a date, amount, category and subcategory');
+          //error response
         } else {
           $http.post(this.baseUrl + '/transaction', trans, this.config)
           .then((res) => {
-            $log.log("Successfully added transaction", res.data);
+            $log.log('Successfully added transaction', res.data);
             this.formatTransaction(res.data);
             this.showHide.addButtons = 0;
             this.formValues.transaction = {date: undefined, amount: undefined, vendor: undefined, category: undefined, subcategory: undefined};
@@ -206,8 +287,13 @@ module.exports = function(app) {
     this.addCategory = function(category) {
       $log.debug('SpendingController.addCategory()');
       category.userId = this.user._id;
+      let categoryList = this.d3Variables.categoryNames;
       if (category.name == null || category.userId == null) {
         $log.error('Category must have a name and userId', category.name, category.userId);
+        //error response
+      } else if (categoryList.includes(category.name)) {
+        $log.error('Category already exists');
+        //error response
       } else {
         $http.post(this.baseUrl + '/category', category, this.config)
           .then((res) => {
@@ -237,8 +323,13 @@ module.exports = function(app) {
 
     this.addSubcategory = function(subcategory) {
       $log.debug('SpendingController.addSubcategory()');
+      let subcategoryList = this.d3Variables.subcategoryNames;
       if (subcategory.name == null || subcategory.supercategory == null) {
         $log.error('Subcategory must have a name and a supercategory', subcategory.name, subcategory.supercategory);
+        // add error response
+      } else if (subcategoryList.includes(subcategory.name)) {
+        $log.error('Subcategory already exists');
+        //add error response
       } else {
         $http.post(this.baseUrl + '/subcategory', subcategory, this.config)
           .then((res) => {
@@ -253,7 +344,7 @@ module.exports = function(app) {
             this.formValues.subcategory = {name: undefined, supercategory: undefined};
           }, (err) => {
             $log.error('Error in SpendingController.addSubcategory()');
-            //handle error
+            //add error response
           });
       }
     }
@@ -275,8 +366,6 @@ module.exports = function(app) {
       this.checkNoUser();
       this.getUserData();
     }
-
-
 
   }]);
 }
