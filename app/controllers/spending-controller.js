@@ -220,6 +220,7 @@ module.exports = function(app) {
 
       this.addChartData(trans.amount, categoryIndex, this.categoryLength, weekIndex, this.d3Variables.weeks.category);
       this.addChartData(trans.amount, subcategoryIndex, this.subcategoryLength, weekIndex, this.d3Variables.weeks.subcategory);
+      this.initChart(this.chartValues.timeSelect, this.chartValues.dataSelect);
     }
 
     this.deleteFromWeek = function(trans) {
@@ -242,6 +243,7 @@ module.exports = function(app) {
       }
       this.subtractChartData(trans.amount, categoryIndex, this.categoryLength, weekIndex, this.d3Variables.weeks.category);
       this.subtractChartData(trans.amount, subcategoryIndex, this.subcategoryLength, weekIndex, this.d3Variables.weeks.subcategory);
+      this.initChart(this.chartValues.timeSelect, this.chartValues.dataSelect);
     }
 
     this.addToMonth = function(trans) {
@@ -264,6 +266,7 @@ module.exports = function(app) {
       }
       this.addChartData(trans.amount, categoryIndex, this.categoryLength, monthIndex, this.d3Variables.months.category);
       this.addChartData(trans.amount, subcategoryIndex, this.subcategoryLength, monthIndex, this.d3Variables.monthssubcategory);
+      this.initChart(this.chartValues.timeSelect, this.chartValues.dataSelect);
     }
 
     this.deleteFromMonth = function(trans) {
@@ -286,12 +289,7 @@ module.exports = function(app) {
       }
       this.subtractChartData(trans.amount, categoryIndex, this.categoryLength, monthIndex, this.d3Variables.months.category);
       this.subtractChartData(trans.amount, subcategoryIndex, this.subcategoryLength, monthIndex, this.d3Variables.months.subcategory);
-    }
-
-    this.formatTransaction = function(trans) {
-      $log.debug('SpendingController.formatTransaction()');
-      this.sortMonth(trans);
-      this.sortWeek(trans);
+      this.initChart(this.chartValues.timeSelect, this.chartValues.dataSelect);
     }
 
     this.addTransaction = function(trans) {
@@ -309,7 +307,8 @@ module.exports = function(app) {
           $http.post(this.baseUrl + '/transaction', trans, this.config)
           .then((res) => {
             $log.log('Successfully added transaction', res.data);
-            this.formatTransaction(res.data);
+            this.addToMonth(trans);
+            this.addToWeek(trans);
             this.showHide.addButtons = 0;
             this.formValues.transaction = {date: undefined, amount: undefined, vendor: undefined, category: undefined, subcategory: undefined};
           })

@@ -7,6 +7,8 @@ const debug = require('debug')('subcategoryRouter');
 
 const Subcategory = require('../models/subcategory');
 const Category = require('../models/category');
+const Transaction = require('../models/transaction');
+const User = require('../models/user');
 
 let subcategoryRouter = module.exports = exports = new Router();
 
@@ -47,13 +49,28 @@ subcategoryRouter.put('/:id', jsonParser, function(req, res, next) {
 
 subcategoryRouter.delete('/:id', function(req, res, next) {
    debug('DELETE /api/subcategory/:id');
+   let transactionArray = [];
+   let userId = '';
    Subcategory.findById(req.params.id)
     .then(sub => {
       return Category.findById(sub.supercategory);
     })
     .then(cat => {
+      userId = cat.userId;
       return cat.removeSubcategoryById(req.params.id);
     })
-    .then(sub => res.json(sub))
+    .then(sub => {
+      transactionArray = Transaction.find({subcategory: sub._id}).map(trans => trans._id);
+      User.findById(userId).then((user) => {
+        user.transactions =  user.transactions.filter((trans) => {
+          if(transactionArray.indexOf(trans) === -1) {
+            return true;
+          }
+          return false;
+        });
+        user.save();
+        res.json(sub);
+      })
+    })
     .catch(next);
 });
