@@ -92,6 +92,7 @@ section.transaction-left {
 
 section.transaction-main {
   header {
+    margin: 0;
     ul {
       @extend .kb-container;
       li {
@@ -99,8 +100,12 @@ section.transaction-main {
         width: 50%;
         font-size: 0.833rem;
         text-align: center;
+        button {
+          height: 100%;
+          width: 100%;
+        }
         &.selected {
-          
+
         }
       }
     }

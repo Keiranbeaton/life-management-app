@@ -6,32 +6,61 @@ module.exports = function(app) {
     this.transactions = {};
     this.d3Variables = {};
     this.formValues = {vendor: {}, category: {}, subcategory: {}, transaction: {}};
-    this.showHide = {addButtons: 0, leftContainer: 1, compareChart: 0};
+    this.showHide = {addButtons: 0, leftContainer: 1};
     this.selectedTransactions = [];
+    this.chartValues = {timeSelect: 0, dataSelect: 0};
+    this.categoryLength = 0;
+    this.subcategoryLength = 0;
     const margin = {top: 10, right: 10, bottom: 20, left: 40};
     let width = 320 - margin.left  - margin.right;
     let height = 560 - margin.top - margin.bottom;
 
     const svg = d3.select('svg').attr('width', width + margin.left + margin.right).attr('height', height + margin.top + margin.bottom);
-    let categoryNames = [];
-    let subcategoryNames = [];
-    let monthNames = [];
-    let weekNames = [];
 
-    this.initMonthChartCategories = function() {
-      $log.debug('initMonthChartCategories()');
+    this.setMonths = function() {
+      $log.debug('SpendingController.setMonths()');
+      this.chartValues.timeSelect = 0;
+      this.initChart(this.chartValues.timeSelect, this.chartValues.dataSelect);
+    }
+
+    this.setWeeks = function() {
+      $log.debug('SpendingController.setWeeks()');
+      this.chartValues.timeSelect = 1;
+      this.initChart(this.chartValues.timeSelect, this.chartValues.dataSelect);
+    }
+
+    this.setCategories = function() {
+      $log.debug('SpendingController.setCategories()');
+      this.chartValues.dataSelect = 0;
+      this.initChart(this.chartValues.timeSelect, this.chartValues.dataSelect);
+    }
+
+    this.setSubcategories = function() {
+      $log.debug('SpendingController.setSubcategories()');
+      this.chartValues.dataSelect = 1;
+      this.initChart(this.chartValues.timeSelect, this.chartValues.dataSelect);
+    }
+
+    this.initChart = function(timeSelect = 0, dataSelect = 0) {
+      $log.debug('SpendingController.initChart()')
+      let timeNames = (timeSelect === 0) ? this.d3Variables.months.labels : this.d3Variables.weeks.labels;
+      let timeMax = (timeSelect === 0) ? this.d3Variables.months.max : this.d3Variables.weeks.max;
+      let dataNames = (dataSelect === 0) ? this.d3Variables.categoryNames : this.d3Variables.subcategoryNames;
+      let dataArray = (dataSelect === 0 && timeSelect === 0) ? this.d3Variables.months.category : (dataSelect === 0 && timeSelect === 1) ? this.d3Variables.weeks.category : (dataSelect === 1 && timeSelect === 0) ? this.d3Variables.months.subcategory : this.d3Variables.weeks.subcategory;
 
       let color = d3.scaleOrdinal()
-      .domain(categoryNames)
-      .range(d3.quantize(t => d3.interpolateSpectral(t * 0.8 + 0.1), categoryNames.length).reverse())
+      .domain(dataNames)
+      .range(d3.quantize(t => d3.interpolateSpectral(t * 0.8 + 0.1), dataNames.length).reverse())
       .unknown('#ccc');
+
       let x = d3.scaleBand()
-        .domain(monthNames)
+        .domain(timeNames)
         .range([margin.left, width - margin.right])
         .padding(0.1);
+
       let y = d3.scaleLinear()
-        .domain([0, this.d3Variables.months.max])
-        .rangeRound([height - margin.bottom, margin.top]);
+         .domain([0, timeMax])
+         .rangeRound([height - margin.bottom, margin.top]);
 
       let xAxis = g => g
         .attr('transform', `translate(0,${height - margin.bottom})`)
@@ -49,7 +78,7 @@ module.exports = function(app) {
           .attr('font-size', 10)
           .attr('text-anchor', 'end')
         .selectAll('g')
-        .data(categoryNames.slice().reverse())
+        .data(dataNames.slice().reverse())
         .enter().append('g')
           .attr('transform', (d, i) => `translate(0,${i * 20})`);
 
@@ -62,46 +91,34 @@ module.exports = function(app) {
         g.append('text')
           .attr('x', -24)
           .attr('y', 9.5)
-          .attr('dy', '0.35em')
+          .attr('dy', '0.35rem')
           .text(d => d);
       }
 
       svg.append('g')
       .selectAll('g')
-      .data(this.d3Variables.months.category)
+      .data(dataArray)
       .enter().append('g')
-          .attr('fill', (d, i) => color(this.d3Variables.categoryNames[i]))
-        .selectAll('rect')
-        .data(d => d)
-        .enter().append('rect')
-          .attr('x', (d, i) => x(monthNames[i]))
-          .attr('y', d => y(d[1]))
-          .attr('height', d => y(d[0]) - y(d[1]))
-          .attr('width', x.bandwidth());
+        .attr('fill', (d, i) => color(dataNames[i]))
+      .selectAll('rect')
+      .data(d => d)
+      .enter().append('rect')
+        .attr('x', (d, i) => x(timeNames[i]))
+        .attr('y', d => y(d[1]))
+        .attr('height', d => y(d[0]) - y(d[1]))
+        .attr('width', x.bandwidth());
 
-          svg.append('g')
-          .call(xAxis);
+      svg.append('g')
+        .call(xAxis);
 
-          svg.append('g')
-          .call(yAxis);
+      svg.append('g')
+        .call(yAxis);
 
-          svg.append('g')
-          .attr('transform', `translate(${width - margin.right},${margin.top})`)
-          .call(legend);
+      svg.append('g')
+        .attr('transform', `translate(${width - margin.right},${margin.top})`)
+        .call(legend);
 
-          return svg.node();
-    }
-
-    const initWeekChartCategories = function() {
-      $log.debug('initWeekChartCategories');
-    }
-
-    const initMonthChartSubcategories = function() {
-      $log.debug('initMonthChartSubcategories');
-    }
-
-    const initWeekChartSubcategories = function() {
-      $log.debug('initWeekChartSubcategories');
+      return svg.node();
     }
 
     this.setButtons = function(num) {
@@ -128,79 +145,154 @@ module.exports = function(app) {
 
     this.getUser = auth.getUser.bind(auth);
 
+    this.setMax = function(array) {
+      $log.debug('SpendingController.setMax()')
+      let returnArray = array.slice();
+      return returnArray.sort((a,b) => b - a)[0];
+    }
+
+    this.addTotals = function(trans, timeIndex, maxArray) {
+      $log.debug('SpendingController.addTotals()');
+      let returnArray = maxArray.slice();
+      returnArray[timeIndex] += trans.amount;
+      return returnArray;
+    }
+
+    this.subtractTotals = function(trans, timeIndex, maxArray) {
+      $log.debug('SpendingController.subctractTotals()');
+      let returnArray = maxArray.slice();
+      returnArray[timeIndex] -= trans.amount;
+      return returnArray;
+    }
+
+    this.addChartData = function(amount, dataIndex, length, timeIndex, timeArray) {
+      $log.debug('SpendingController.addChartData()');
+      for(let i = dataIndex + 1; i < length; i++) {
+        timeArray[i][timeIndex][0] += amount;
+        timeArray[i][timeIndex][1] += amount
+      }
+    }
+
+    this.subtractChartData = function(amount, dataIndex, length, timeIndex, timeArray) {
+      $log.debug('SpendingController.subtractChartData()');
+      for(let i = dataIndex + 1; i < length; i++) {
+        timeArray[i][timeIndex][0] -= amount;
+        timeArray[i][timeIndex][1] -= amount;
+      }
+    }
+
     this.getUserData = function() {
       $log.debug('SpendingController.getUserData()');
       $http.get(this.baseUrl + '/user/transactions/' + this.currentUser.userId, this.config)
         .then((res) => {
           $log.log('res.data', res.data);
+          this.user = res.data.user;
           this.transactions = res.data.transactions.tableData;
           this.d3Variables = res.data.transactions.chartData;
-          this.user = res.data.user;
           this.selectedTransactions = this.transactions.months[0];
-          categoryNames = this.d3Variables.categoryNames;
-          subcategoryNames = this.d3Variables.subcategoryNames;
-          monthNames = this.d3Variables.months.labels;
-          weekNames = this.d3Variables.weeks.labels;
-          this.initMonthChartCategories();
+          this.subcategoryLength = res.data.transactions.chartData.subcategoryNames.length;
+          this.categoryLength = res.data.transactions.chartData.categoryNames.length;
+          this.initChart();
         }, (err) => {
           $log.error('SpendingController.getTransactions()', err);
           // add error response
         });
     }
 
-    this.sortWeek = function(trans) {
+    this.addToWeek = function(trans) {
       $log.debug('SpendingController.sortWeek()');
       let transMoment = moment(trans.date);
+      let categoryIndex = this.d3Variables.categoryNames.indexOf(trans.category.name);
+      let subcategoryIndex = this.d3Variables.subcategoryNames.indexOf(trans.subcategory.name);
+      let weekIndex = 0
 
       for (let i = 0; i < 12; i++) {
         if(transMoment.isAfter(moment().startOf('week').subtract((7 * i), 'd')) || transMoment.isSame(moment().startOf('week').subtract((7 * i), 'd'))) {
+          weekIndex = i;
           this.transactions.weeks[i].allTransactions.push(trans);
           this.transactions.weeks[i].chartCategories[trans.category.name] += trans.amount;
-          this.transactiona.weeks[i].chartSubcategories[trans.subcategory.name] += trans.amount;
+          this.transactions.weeks[i].chartSubcategories[trans.subcategory.name] += trans.amount;
+          this.d3Variables.weeks.category[categoryIndex][i][1] += trans.amount;
+          this.d3Variables.weeks.subcategory[subcategoryIndex][i][1] += trans.amount;
           break;
         }
       }
+
+      this.addChartData(trans.amount, categoryIndex, this.categoryLength, weekIndex, this.d3Variables.weeks.category);
+      this.addChartData(trans.amount, subcategoryIndex, this.subcategoryLength, weekIndex, this.d3Variables.weeks.subcategory);
     }
 
     this.deleteFromWeek = function(trans) {
       $log.debug('SpendingController.deleteFromWeek()');
       let transMoment = moment(trans.date);
+      let categoryIndex = this.d3Variables.categoryNames.indexOf(trans.category.name);
+      let subcategoryIndex = this.d3Variables.subcategoryNames.indexOf(trans.subcategory.name);
+      let weekIndex = 0;
 
       for (let i = 0; i < 12; i++) {
         if (transMoment.isAfter(moment().startOf('week').subtract((7 * i), 'd')) || transMoment.isSame(moment().startOf('week').subtract((7 * i), 'd'))) {
+          weekIndex = i;
           this.transactions.weeks[i].allTransactions.splice(this.transactions.weeks[i].indexOf(trans), 1);
           this.transactions.weeks[i].chartCategories[trans.category.name] -= trans.amount;
           this.transactions.weeks[i].chartSubcategories[trans.subcategory.name] -= trans.amount;
+          this.d3Variables.weeks.category[categoryIndex][i][1] -= trans.amount;
+          this.d3Variables.weeks.subcategory[subcategoryIndex][i][1] -= trans.amount;
           break;
         }
       }
+      this.subtractChartData(trans.amount, categoryIndex, this.categoryLength, weekIndex, this.d3Variables.months.category);
+      this.subctractChartData(trans.amount, subcategoryIndex, this.subcategoryLength, weekIndex, this.d3Variables.months.subcategory);
     }
 
     this.sortMonth = function(trans) {
       $log.debug('SpendingController.sortMonth()');
       let transMoment = moment(trans.date);
+      let categoryIndex = this.d3Variables.categoryNames.indexOf(trans.category.name);
+      let subcategoryIndex = this.d3Variables.subcategoryNames.indexOf(trans.subcategory.name);
+      let monthIndex = 0;
 
       for(let i = 0; i < 13; i++) {
         if(transMoment.month() === moment().subtract(i, 'M').month() && transMoment.year() === moment().subtract(i, 'M').year()) {
+          monthIndex = i;
           this.transactions.months[i].allTransactions.push(trans);
           this.transactions.months[i].chartCategories[trans.category.name] += trans.amount;
           this.transactions.months[i].chartSubcategories[trans.subcategory.name] += trans.amount;
+          this.d3Variables.months.category[categoryIndex][i][1] += trans.amount;
+          this.d3Variables.months.subcategory[subcategoryIndex][i][1] += trans.amount;
           break;
         }
       }
+      this.updateChart('add', trans.amount, categoryIndex, this.d3Variables.categoryNames.length, subcategoryIndex, this.d3Variables.subcategoryNames.length, monthIndex, this.d3Variables.months);
     }
 
     this.deleteFromMonth = function(trans) {
       $log.debug('SpendingController.deleteFromMonth()');
       let transMoment = moment(trans.date);
+      let categoryIndex = this.d3Variables.categoryNames.indexOf(trans.category.name);
+      let subcategoryIndex = this.d3Variables.subcategoryNames.indexOf(trans.subcategory.name);
+      let monthIndex = 0;
 
       for(let i = 0; i < 12; i++) {
         if(transMoment.month() === moment().subtract(i, 'M').month() && transMoment.year() === moment().subtract(i, 'M').year()) {
+          monthIndex = i;
           this.transactions.months[i].allTransactions.splice(this.transactions.months[i].allTransactions.indexOf(trans), 1);
           this.transactions.months[i].chartCategories[trans.category.name] -= trans.amount;
           this.transactions.months[i].chartSubcategories[trans.subcategory.name] -= trans.amount;
+          this.d3Variables.months.category[categoryIndex][i][1] -= trans.amount;
+          this.d3Variables.months.subcategory[subcategoryIndex][i][1] -= trans.amount;
           break;
         }
+      }
+      this.updateChart('subtract', trans.amount, categoryIndex)
+
+      for(let i = categoryIndex + 1; i < this.d3Variables.months.category.length; i++) {
+        this.d3Variables.months.category[i][monthIndex][0] -= trans.amount;
+        this.d3Variables.months.category[i][monthIndex][1] -= trans.amount;
+      }
+
+      for(let i = subcategoryIndex + 1; i < this.d3Variables.months.subcategory.length; i++) {
+        this.d3Variables.months.subcategory[i][monthIndex][0] -= trans.amount;
+        this.d3Variables.months.subcategory[i][monthIndex][1] -= trans.amount;
       }
     }
 

@@ -151,15 +151,18 @@ const createD3Object = function(categoryArray, timeArray, categoryPropertyName) 
   return returnArray;
 }
 
-const getMax = function(timeObj) {
+const getMaxArray = function(timeObj) {
   let totalsArray = timeObj.map((period) => {
       return period.allTransactions.reduce((acc, cur) => {
         let num = acc + cur.amount;
         return Math.round(num * 100) / 100;
       }, 0);
     });
-  let sorted = totalsArray.sort((a,b) => b - a);
-  return sorted[0];
+  return totalsArray;
+}
+
+const getMax = function(maxArray) {
+  return maxArray.slice().sort((a,b) => b - a)[0];
 }
 
 const getLabels = function(timeObj) {
@@ -202,8 +205,10 @@ transactionFormatter.format = function(transArray) {
   transactionFormatter.transactionObject.chartData.months.category = createD3Object(categories, transactionFormatter.transactionObject.tableData.months, 'chartCategories');
   transactionFormatter.transactionObject.chartData.weeks.subcategory = createD3Object(subcategories, transactionFormatter.transactionObject.tableData.weeks, 'chartSubcategories');
   transactionFormatter.transactionObject.chartData.months.subcategory = createD3Object(subcategories, transactionFormatter.transactionObject.tableData.months, 'chartSubcategories');
-  transactionFormatter.transactionObject.chartData.weeks.max = getMax(transactionFormatter.transactionObject.tableData.weeks);
-  transactionFormatter.transactionObject.chartData.months.max = getMax(transactionFormatter.transactionObject.tableData.months);
+  transactionFormatter.transactionObject.chartData.weeks.maxArray = getMaxArray(transactionFormatter.transactionObject.tableData.weeks);
+  transactionFormatter.transactionObject.chartData.weeks.max = getMax(transactionFormatter.transactionObject.chartData.weeks.maxArray);
+  transactionFormatter.transactionObject.chartData.months.maxArray = getMaxArray(transactionFormatter.transactionObject.tableData.months);
+  transactionFormatter.transactionObject.chartData.months.max = getMax(transactionFormatter.transactionObject.chartData.months.maxArray);
   transactionFormatter.transactionObject.chartData.weeks.labels = getLabels(transactionFormatter.transactionObject.tableData.weeks);
   transactionFormatter.transactionObject.chartData.months.labels = getLabels(transactionFormatter.transactionObject.tableData.months);
   transactionFormatter.transactionObject.chartData.categoryNames = categories;

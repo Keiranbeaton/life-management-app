@@ -96,23 +96,23 @@
     <header>
       <ul class="time">
         <li>
-          <button type="button" name="button">Weekly View</button>
+          <button type="button" ng-click="$ctrl.setWeeks()">Weekly View</button>
         </li>
         <li>
-          <button type="button" name="button">Monthly View</button>
+          <button type="button" ng-click="$ctrl.setMonths()">Monthly View</button>
         </li>
       </ul>
       <ul class="data">
         <li>
-          <button type="button" name="button">Sort By Category</button>
+          <button type="button" ng-click="$ctrl.setCategories()">Sort By Category</button>
         </li>
         <li>
-          <button type="button" name="button">Sort By Subcategory</button>
+          <button type="button" ng-click="$ctrl.setSubcategories()">Sort By Subcategory</button>
         </li>
       </ul>
     </header>
-    <section class="chart">
-      <svg></svg>
+    <section>
+      <svg class="chart"></svg>
     </section>
   </section>
 </div>
