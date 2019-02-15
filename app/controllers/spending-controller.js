@@ -240,11 +240,11 @@ module.exports = function(app) {
           break;
         }
       }
-      this.subtractChartData(trans.amount, categoryIndex, this.categoryLength, weekIndex, this.d3Variables.months.category);
-      this.subctractChartData(trans.amount, subcategoryIndex, this.subcategoryLength, weekIndex, this.d3Variables.months.subcategory);
+      this.subtractChartData(trans.amount, categoryIndex, this.categoryLength, weekIndex, this.d3Variables.weeks.category);
+      this.subtractChartData(trans.amount, subcategoryIndex, this.subcategoryLength, weekIndex, this.d3Variables.weeks.subcategory);
     }
 
-    this.sortMonth = function(trans) {
+    this.addToMonth = function(trans) {
       $log.debug('SpendingController.sortMonth()');
       let transMoment = moment(trans.date);
       let categoryIndex = this.d3Variables.categoryNames.indexOf(trans.category.name);
@@ -262,7 +262,8 @@ module.exports = function(app) {
           break;
         }
       }
-      this.updateChart('add', trans.amount, categoryIndex, this.d3Variables.categoryNames.length, subcategoryIndex, this.d3Variables.subcategoryNames.length, monthIndex, this.d3Variables.months);
+      this.addChartData(trans.amount, categoryIndex, this.categoryLength, monthIndex, this.d3Variables.months.category);
+      this.addChartData(trans.amount, subcategoryIndex, this.subcategoryLength, monthIndex, this.d3Variables.monthssubcategory);
     }
 
     this.deleteFromMonth = function(trans) {
@@ -283,17 +284,8 @@ module.exports = function(app) {
           break;
         }
       }
-      this.updateChart('subtract', trans.amount, categoryIndex)
-
-      for(let i = categoryIndex + 1; i < this.d3Variables.months.category.length; i++) {
-        this.d3Variables.months.category[i][monthIndex][0] -= trans.amount;
-        this.d3Variables.months.category[i][monthIndex][1] -= trans.amount;
-      }
-
-      for(let i = subcategoryIndex + 1; i < this.d3Variables.months.subcategory.length; i++) {
-        this.d3Variables.months.subcategory[i][monthIndex][0] -= trans.amount;
-        this.d3Variables.months.subcategory[i][monthIndex][1] -= trans.amount;
-      }
+      this.subtractChartData(trans.amount, categoryIndex, this.categoryLength, monthIndex, this.d3Variables.months.category);
+      this.subtractChartData(trans.amount, subcategoryIndex, this.subcategoryLength, monthIndex, this.d3Variables.months.subcategory);
     }
 
     this.formatTransaction = function(trans) {
