@@ -5,6 +5,7 @@ module.exports = function(app) {
     this.currentUser = auth.currentUser;
     this.transactions = {};
     this.d3Variables = {};
+    //d3Variables = {months/weeks:{category:[], subcategory: [], maxArray: [], max: num},, categoryNames/subcategoryNames: []}
     this.formValues = {vendor: {}, category: {}, subcategory: {}, transaction: {}};
     this.showHide = {addButtons: 0, leftContainer: 1};
     this.selectedTransactions = [];
