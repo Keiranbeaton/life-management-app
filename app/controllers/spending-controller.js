@@ -17,25 +17,25 @@ module.exports = function(app) {
 
     const svg = d3.select('svg').attr('width', width + margin.left + margin.right).attr('height', height + margin.top + margin.bottom);
 
-    this.setMonths = function() {
+    this.setChartToMonths = function() {
       $log.debug('SpendingController.setMonths()');
       this.chartValues.timeSelect = 0;
       this.initChart(this.chartValues.timeSelect, this.chartValues.dataSelect);
     }
 
-    this.setWeeks = function() {
+    this.setChartToWeeks = function() {
       $log.debug('SpendingController.setWeeks()');
       this.chartValues.timeSelect = 1;
       this.initChart(this.chartValues.timeSelect, this.chartValues.dataSelect);
     }
 
-    this.setCategories = function() {
+    this.setChartToCategories = function() {
       $log.debug('SpendingController.setCategories()');
       this.chartValues.dataSelect = 0;
       this.initChart(this.chartValues.timeSelect, this.chartValues.dataSelect);
     }
 
-    this.setSubcategories = function() {
+    this.setChartToSubcategories = function() {
       $log.debug('SpendingController.setSubcategories()');
       this.chartValues.dataSelect = 1;
       this.initChart(this.chartValues.timeSelect, this.chartValues.dataSelect);

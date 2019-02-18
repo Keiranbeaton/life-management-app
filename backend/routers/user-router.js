@@ -53,13 +53,17 @@ userRouter.put('/:id', jsonParser, (req, res, next) => {
 userRouter.delete('/:id', (req, res, next) => {
   debug('DELETE /api/user/:id');
   let result;
+  let categoryArray = [];
   User.findByIdAndRemove(req.params.id)
     .then(user => {
       result = user;
       Transaction.remove({userId: user._id});
       Vendor.remove({userId: user._id});
+      categoryArray = Category.find({userId: user._id}).map(cat => cat._id);
+      categoryArray.forEach((catId) => {
+        Subcategory.remove({supercategory: catId});
+      });
       Category.remove({userId: user._id});
-      Subcategory.remove({userId: user._id});
     })
     .then(() => {
       res.json(result);

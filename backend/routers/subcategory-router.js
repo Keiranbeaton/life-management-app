@@ -51,6 +51,7 @@ subcategoryRouter.delete('/:id', function(req, res, next) {
    debug('DELETE /api/subcategory/:id');
    let transactionArray = [];
    let userId = '';
+   let userTransactions = [];
    Subcategory.findById(req.params.id)
     .then(sub => {
       return Category.findById(sub.supercategory);
@@ -62,15 +63,15 @@ subcategoryRouter.delete('/:id', function(req, res, next) {
     .then(sub => {
       transactionArray = Transaction.find({subcategory: sub._id}).map(trans => trans._id);
       User.findById(userId).then((user) => {
-        user.transactions =  user.transactions.filter((trans) => {
-          if(transactionArray.indexOf(trans) === -1) {
+        userTransactions = user.transactions.filter((trans) => {
+          if (transactionArray.indexOf(trans) === -1) {
             return true;
           }
           return false;
         });
-        user.save();
-        res.json(sub);
-      })
+      });
+      User.findOneAndUpdate({_id: userId}, {transactions: userTransactions});
+      res.json(sub);
     })
     .catch(next);
 });

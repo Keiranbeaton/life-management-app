@@ -45,11 +45,15 @@ categoryRouter.put(':/id', jsonParser, function(req, res, next) {
 categoryRouter.delete('/:id', function(req, res, next) {
   debug('DELETE /api/category/:id');
   let transactionArray = [];
+  let userId = '';
+  let userTransactions = [];
   Category.findById(req.params.id)
     .then(cat => {
-      return User.findById(cat.userId);
+      userId = cat.userId;
+      return User.findById(userId);
     })
     .then(user => {
+      userTransactions = user.transactions;
       return user.removeCategoryById(req.params.id);
     })
     .then(cat => {
@@ -58,18 +62,15 @@ categoryRouter.delete('/:id', function(req, res, next) {
         .then(trans => {
         transactionArray = trans.map(obj => obj._id);
         Transaction.deleteMany({category: cat._id});
-        User.findById(cat.userId)
-          .then(user => {
-            user.transactions =  user.transactions.filter((trans) => {
-              if(transactionArray.indexOf(trans) === -1) {
-                return true;
-              }
-              return false;
-            });
-            user.save();
-            res.json(cat);
-          })
-        })
+        userTransactions = userTransactions.filter((trans) => {
+          if (transactionArray.indexOf(trans) === -1) {
+            return true;
+          }
+          return false;
+        });
+        User.findOneAndUpdate({_id: userId}, {transactions: userTransactions});
+        res.json(cat);
+      });
     })
     .catch(next);
 });
