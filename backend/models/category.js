@@ -6,7 +6,7 @@ const Promise = require('bluebird');
 const Subcategory = require('./subcategory');
 
 var categorySchema = mongoose.Schema({
-  userId: {type: mongoose.Schema.Types.ObjectId},
+  userId: {type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true},
   name: {type: String, required: true},
   subcategories: [{type: mongoose.Schema.Types.ObjectId, ref: 'Subcategory'}]
 });

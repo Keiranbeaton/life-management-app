@@ -9,6 +9,7 @@ const Subcategory = require('../models/subcategory');
 const Category = require('../models/category');
 const Transaction = require('../models/transaction');
 const User = require('../models/user');
+const transactionFormatter = require('../lib/transaction-format');
 
 let subcategoryRouter = module.exports = exports = new Router();
 
@@ -19,7 +20,13 @@ subcategoryRouter.post('/', jsonParser, function(req, res, next) {
     .then(cat => {
       cat.addSubcategory(req.body)
         .then((sub) => {
-          res.json(sub);
+          User.findById(data.userId)
+            .then(user => {
+              user.addSubcategory(req.body)
+              .then((subcat) => {
+                res.json(sub);
+              }).catch(next);
+            }).catch(err => next(createError(400, err.message)));
         }).catch(next);
     }).catch(err => next(createError(400, err.message)));
 });
@@ -61,17 +68,27 @@ subcategoryRouter.delete('/:id', function(req, res, next) {
       return cat.removeSubcategoryById(req.params.id);
     })
     .then(sub => {
-      transactionArray = Transaction.find({subcategory: sub._id}).map(trans => trans._id);
-      User.findById(userId).then((user) => {
-        userTransactions = user.transactions.filter((trans) => {
-          if (transactionArray.indexOf(trans) === -1) {
-            return true;
-          }
-          return false;
-        });
-      });
-      User.findOneAndUpdate({_id: userId}, {transactions: userTransactions});
-      res.json(sub);
+      Transaction.find({subcategory: sub._id}).then((transArray) => {
+        transactionArray = transArray.map(trans => trans._id);
+        Transaction.deleteMany({subcategory: sub._id}).then(() => {
+          User.findById(userId).then((user) => {
+            userTransactions = user.transactions.filter((trans) => {
+              if (transactionArray.indexOf(trans) === -1) {
+                return true;
+              }
+              return false;
+            });
+            User.findOneAndUpdate({_id: userId}, {transactions: userTransactions}, {new: true}).then((user) => {
+              Transaction.find({userId: user._id}).populate('vendor category subcategory').then((transFinal) => {
+                if (transFinal.length > 0) {
+                  let formatted = transactionFormatter.format(transFinal);
+                  res.json({transactions: formatted, subvategory: sub});
+                }
+              }).catch(err => next(createError(400, err.message)));
+            }).catch(err => next(createError(400, err.message)));
+          }).catch(err => next(createError(400, err.message)));
+        }).catch(err => next(createError(400, err.message)));
+      }).catch(err => next(createError(400, err.message)));
     })
     .catch(next);
 });

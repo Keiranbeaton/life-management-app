@@ -4,14 +4,10 @@ module.exports = function(app) {
   app.controller('SpendingController', ['$http', '$log', '$scope', '$location', 'auth', 'moment', 'd3', function($http, $log, $scope, $location, auth, moment, d3) {
     this.currentUser = auth.currentUser;
     this.transactions = {};
-    this.d3Variables = {};
-    //d3Variables = {months/weeks:{category:[], subcategory: [], maxArray: [], max: num},, categoryNames/subcategoryNames: []}
     this.formValues = {vendor: {}, category: {}, subcategory: {}, transaction: {}};
     this.showHide = {addButtons: 0, leftContainer: 1};
     this.selectedTransactions = [];
     this.chartValues = {timeSelect: 0, dataSelect: 0};
-    this.categoryLength = 0;
-    this.subcategoryLength = 0;
     const margin = {top: 10, right: 10, bottom: 20, left: 40};
     let width = 320 - margin.left  - margin.right;
     let height = 560 - margin.top - margin.bottom;
@@ -44,10 +40,10 @@ module.exports = function(app) {
 
     this.initChart = function(timeSelect = 0, dataSelect = 0) {
       $log.debug('SpendingController.initChart()')
-      let timeNames = (timeSelect === 0) ? this.d3Variables.months.labels : this.d3Variables.weeks.labels;
-      let timeMax = (timeSelect === 0) ? this.d3Variables.months.max : this.d3Variables.weeks.max;
-      let dataNames = (dataSelect === 0) ? this.d3Variables.categoryNames : this.d3Variables.subcategoryNames;
-      let dataArray = (dataSelect === 0 && timeSelect === 0) ? this.d3Variables.months.category : (dataSelect === 0 && timeSelect === 1) ? this.d3Variables.weeks.category : (dataSelect === 1 && timeSelect === 0) ? this.d3Variables.months.subcategory : this.d3Variables.weeks.subcategory;
+      let timeNames = (timeSelect === 0) ? this.transactions.months.labels : this.transactions.weeks.labels;
+      let timeMax = (timeSelect === 0) ? this.getMax(this.transactions.months) : this.getMax(this.transactions.weeks);
+      let dataNames = (dataSelect === 0) ? this.getNames(this.transactions.categories) : this.getNames(this.transactions.subcategories);
+      let dataArray = (dataSelect === 0 && timeSelect === 0) ? this.transactions.months.categoryData : (dataSelect === 0 && timeSelect === 1) ? this.transactions.weeks.categoryData : (dataSelect === 1 && timeSelect === 0) ? this.transactions.months.subcategoryData : this.transactions.weeks.subcategoryData;
 
       let color = d3.scaleOrdinal()
       .domain(dataNames)
@@ -146,40 +142,68 @@ module.exports = function(app) {
 
     this.getUser = auth.getUser.bind(auth);
 
-    this.setMax = function(array) {
+    this.getMax = function(array) {
       $log.debug('SpendingController.setMax()')
-      let returnArray = array.slice();
+      let returnArray = array.slice().map((timePeriod) => {
+          return timePeriod.allTransactions.reduce((acc, cur) => {
+            return Math.round((acc + cur.amount) * 100) / 100;
+          }, 0);
+      });
+
       return returnArray.sort((a,b) => b - a)[0];
     }
 
-    this.addTotals = function(trans, timeIndex, maxArray) {
-      $log.debug('SpendingController.addTotals()');
-      let returnArray = maxArray.slice();
-      returnArray[timeIndex] += trans.amount;
-      return returnArray;
+    this.getNames = function(array) {
+      let returnArray = array.slice();
+      return returnArray.map(cat => cat.name);
     }
 
-    this.subtractTotals = function(trans, timeIndex, maxArray) {
-      $log.debug('SpendingController.subctractTotals()');
-      let returnArray = maxArray.slice();
-      returnArray[timeIndex] -= trans.amount;
-      return returnArray;
-    }
-
-    this.addChartData = function(amount, dataIndex, length, timeIndex, timeArray) {
-      $log.debug('SpendingController.addChartData()');
+    this.addCategoryData = function(amount, dataIndex, length, timeIndex, timeArray) {
+      $log.debug('SpendingController.addCategoryData()');
       for(let i = dataIndex + 1; i < length; i++) {
-        timeArray[i][timeIndex][0] += amount;
-        timeArray[i][timeIndex][1] += amount
+        timeArray[i].categoryData[timeIndex][0] += amount;
+        timeArray[i].categoryData[timeIndex][1] += amount
       }
     }
 
-    this.subtractChartData = function(amount, dataIndex, length, timeIndex, timeArray) {
-      $log.debug('SpendingController.subtractChartData()');
-      for(let i = dataIndex + 1; i < length; i++) {
-        timeArray[i][timeIndex][0] -= amount;
-        timeArray[i][timeIndex][1] -= amount;
+    this.addSubcategoryData = function(amount, dataIndex, length, timeIndex, timeArray) {
+      $log.debug('SpendingController.addSubcategoryData()');
+      for (let i = dataIndex + 1; i < length; i++) {
+        timeArray[i].subcategoryData[timeIndex][0] += amount;
+        timeArray[i].subcategoryData[timeIndex][1] += amount;
       }
+    }
+
+    this.subtractCategoryData = function(amount, dataIndex, length, timeIndex, timeArray) {
+      $log.debug('SpendingController.subtractCategoryData()');
+      for (let i = dataIndex + 1; i < length; i++) {
+        timeArray[i].categoryData[timeIndex][0] -= amount;
+        timeArray[i].categoryData[timeIndex][1] -= amount;
+      }
+    }
+
+    this.subtractSubcategoryData = function(amount, dataIndex, length, timeIndex, timeArray) {
+      $log.debug('SpendingController.subtractSubcategoryData()');
+      for ( let i = dataIndex + 1; i < length; i++) {
+        timeArray[i].subcategoryData[timeIndex][0] -= amount;
+        timeArray[i].subcategoryData[timeIndex][1] -= amount;
+      }
+    }
+
+    this.deleteCategoryFromTransactions = function(category) {
+      $log.debug('SpendingController.deleteCategoryFromTransactions()')
+      this.transactions.months.forEach((month) => {
+        month.allTransactions = month.allTransactions.filter((trans) => {
+            if (trans.category !== category.name) {
+              return true;
+            }
+            return false;
+        });
+        delete month.chartCategories[category.name];
+        category.subcategories.forEach((sub) => {
+          delete month.chartSubcategories[sub.name];
+        })
+      });
     }
 
     this.getUserData = function() {
@@ -188,11 +212,8 @@ module.exports = function(app) {
         .then((res) => {
           $log.log('res.data', res.data);
           this.user = res.data.user;
-          this.transactions = res.data.transactions.tableData;
-          this.d3Variables = res.data.transactions.chartData;
-          this.selectedTransactions = this.transactions.months[0];
-          this.subcategoryLength = res.data.transactions.chartData.subcategoryNames.length;
-          this.categoryLength = res.data.transactions.chartData.categoryNames.length;
+          this.transactions = res.data.transactions;
+          this.selectedTransactions = this.transactions.months[0].allTransactions;
           this.initChart();
         }, (err) => {
           $log.error('SpendingController.getTransactions()', err);
@@ -203,94 +224,123 @@ module.exports = function(app) {
     this.addToWeek = function(trans) {
       $log.debug('SpendingController.sortWeek()');
       let transMoment = moment(trans.date);
-      let categoryIndex = this.d3Variables.categoryNames.indexOf(trans.category.name);
-      let subcategoryIndex = this.d3Variables.subcategoryNames.indexOf(trans.subcategory.name);
+      let categoryIndex = this.transactions.categories.indexOf(trans.category);
+      let subcategoryIndex = this.transactions.subcategories.indexOf(trans.subcategory);
       let weekIndex = 0
 
       for (let i = 0; i < 12; i++) {
         if(transMoment.isAfter(moment().startOf('week').subtract((7 * i), 'd')) || transMoment.isSame(moment().startOf('week').subtract((7 * i), 'd'))) {
           weekIndex = i;
           this.transactions.weeks[i].allTransactions.push(trans);
-          this.transactions.weeks[i].chartCategories[trans.category.name] += trans.amount;
-          this.transactions.weeks[i].chartSubcategories[trans.subcategory.name] += trans.amount;
-          this.d3Variables.weeks.category[categoryIndex][i][1] += trans.amount;
-          this.d3Variables.weeks.subcategory[subcategoryIndex][i][1] += trans.amount;
+          this.transactions.weeks[i].categoryData[categoryIndex][i][1] += trans.amount;
+          this.transactions.weeks[i].categoryData[categoryIndex][i][2] += trans.amount;
+          this.transactions.weeks[i].subcategoryData[subcategoryIndex][i][1] += trans.amount;
+          this.transactions.weeks[i].subcategoryData[subcategoryIndex][i][2] += trans.amount;
           break;
         }
       }
 
-      this.addChartData(trans.amount, categoryIndex, this.categoryLength, weekIndex, this.d3Variables.weeks.category);
-      this.addChartData(trans.amount, subcategoryIndex, this.subcategoryLength, weekIndex, this.d3Variables.weeks.subcategory);
-      this.initChart(this.chartValues.timeSelect, this.chartValues.dataSelect);
+      this.addCategoryData(trans.amount, categoryIndex, this.transactions.categories.length, weekIndex, this.transactions.weeks);
+      this.addSubcategoryData(trans.amount, subcategoryIndex, this.transactions.subcategories.length, weekIndex, this.transactions.weeks);
     }
 
     this.deleteFromWeek = function(trans) {
       $log.debug('SpendingController.deleteFromWeek()');
       let transMoment = moment(trans.date);
-      let categoryIndex = this.d3Variables.categoryNames.indexOf(trans.category.name);
-      let subcategoryIndex = this.d3Variables.subcategoryNames.indexOf(trans.subcategory.name);
+      let categoryIndex = this.transactions.categories.indexOf(trans.category);
+      let subcategoryIndex = this.transactions.subcategories.indexOf(trans.subcategory);
       let weekIndex = 0;
 
       for (let i = 0; i < 12; i++) {
         if (transMoment.isAfter(moment().startOf('week').subtract((7 * i), 'd')) || transMoment.isSame(moment().startOf('week').subtract((7 * i), 'd'))) {
           weekIndex = i;
           this.transactions.weeks[i].allTransactions.splice(this.transactions.weeks[i].indexOf(trans), 1);
-          this.transactions.weeks[i].chartCategories[trans.category.name] -= trans.amount;
-          this.transactions.weeks[i].chartSubcategories[trans.subcategory.name] -= trans.amount;
-          this.d3Variables.weeks.category[categoryIndex][i][1] -= trans.amount;
-          this.d3Variables.weeks.subcategory[subcategoryIndex][i][1] -= trans.amount;
+          this.transactions.weeks[i].categoryData[categoryIndex][i][1] -= trans.amount;
+          this.transactions.weeks[i].categoryData[categoryIndex][i][2] -= trans.amount;
+          this.transactions.weeks[i].subcategoryData[subcategoryIndex][i][1] -= trans.amount;
+          this.transactions.weeks[i].subcategoryData[subcategoryIndex][i][2] -= trans.amount;
           break;
         }
       }
-      this.subtractChartData(trans.amount, categoryIndex, this.categoryLength, weekIndex, this.d3Variables.weeks.category);
-      this.subtractChartData(trans.amount, subcategoryIndex, this.subcategoryLength, weekIndex, this.d3Variables.weeks.subcategory);
-      this.initChart(this.chartValues.timeSelect, this.chartValues.dataSelect);
+      this.subtractCategoryData(trans.amount, categoryIndex, this.transactions.categories.length, weekIndex, this.transactions.weeks);
+      this.subtractChartData(trans.amount, subcategoryIndex, this.transactions.subcategories.length, weekIndex, this.transactions.weeks);
     }
 
     this.addToMonth = function(trans) {
       $log.debug('SpendingController.sortMonth()');
       let transMoment = moment(trans.date);
-      let categoryIndex = this.d3Variables.categoryNames.indexOf(trans.category.name);
-      let subcategoryIndex = this.d3Variables.subcategoryNames.indexOf(trans.subcategory.name);
+      let categoryIndex = this.transactions.categories.indexOf(trans.category);
+      let subcategoryIndex = this.transactions.subcategories.indexOf(trans.subcategory);
       let monthIndex = 0;
 
       for(let i = 0; i < 13; i++) {
         if(transMoment.month() === moment().subtract(i, 'M').month() && transMoment.year() === moment().subtract(i, 'M').year()) {
           monthIndex = i;
           this.transactions.months[i].allTransactions.push(trans);
-          this.transactions.months[i].chartCategories[trans.category.name] += trans.amount;
-          this.transactions.months[i].chartSubcategories[trans.subcategory.name] += trans.amount;
-          this.d3Variables.months.category[categoryIndex][i][1] += trans.amount;
-          this.d3Variables.months.subcategory[subcategoryIndex][i][1] += trans.amount;
+          this.transactions.months[i].categoryData[categoryIndex][i][1] += trans.amount;
+          this.transactions.months[i].categoryData[categoryIndex][i][2] += trans.amount;
+          this.transactions.months[i].subcategoryData[subcategoryIndex][i][1] += trans.amount;
+          this.transactions.months[i].subcategoryData[subcategoryIndex][i][2] += trans.amount;
           break;
         }
       }
-      this.addChartData(trans.amount, categoryIndex, this.categoryLength, monthIndex, this.d3Variables.months.category);
-      this.addChartData(trans.amount, subcategoryIndex, this.subcategoryLength, monthIndex, this.d3Variables.monthssubcategory);
-      this.initChart(this.chartValues.timeSelect, this.chartValues.dataSelect);
+      this.addCategoryData(trans.amount, categoryIndex, this.transactions.categories.length, monthIndex, this.transactions.months);
+      this.addSubcategoryData(trans.amount, subcategoryIndex, this.transactions.subcategories.length, monthIndex, this.transactions.months);
     }
 
     this.deleteFromMonth = function(trans) {
       $log.debug('SpendingController.deleteFromMonth()');
       let transMoment = moment(trans.date);
-      let categoryIndex = this.d3Variables.categoryNames.indexOf(trans.category.name);
-      let subcategoryIndex = this.d3Variables.subcategoryNames.indexOf(trans.subcategory.name);
+      let categoryIndex = this.transactions.categories.indexOf(trans.category);
+      let subcategoryIndex = this.transactions.subcategories.indexOf(trans.subcategory);
       let monthIndex = 0;
 
       for(let i = 0; i < 12; i++) {
         if(transMoment.month() === moment().subtract(i, 'M').month() && transMoment.year() === moment().subtract(i, 'M').year()) {
           monthIndex = i;
           this.transactions.months[i].allTransactions.splice(this.transactions.months[i].allTransactions.indexOf(trans), 1);
-          this.transactions.months[i].chartCategories[trans.category.name] -= trans.amount;
-          this.transactions.months[i].chartSubcategories[trans.subcategory.name] -= trans.amount;
-          this.d3Variables.months.category[categoryIndex][i][1] -= trans.amount;
-          this.d3Variables.months.subcategory[subcategoryIndex][i][1] -= trans.amount;
+          this.transactions.months[i].categoryData[categoryIndex][i][1] -= trans.amount;
+          this.transactions.months[i].categoryData[categoryIndex][i][2] -= trans.amount;
+          this.transactions.months[i].subcategoryData[subcategoryIndex][i][1] -= trans.amount;
+          this.transactions.months[i].subcategoryData[subcategoryIndex][i][2] -= trans.amount;
           break;
         }
       }
-      this.subtractChartData(trans.amount, categoryIndex, this.categoryLength, monthIndex, this.d3Variables.months.category);
-      this.subtractChartData(trans.amount, subcategoryIndex, this.subcategoryLength, monthIndex, this.d3Variables.months.subcategory);
-      this.initChart(this.chartValues.timeSelect, this.chartValues.dataSelect);
+      this.subtractCategoryData(trans.amount, categoryIndex, this.transactions.categories.length, monthIndex, this.transactions.months);
+      this.subtractSubcategoryData(trans.amount, subcategoryIndex, this.transactions.subcategories.length, monthIndex, this.transactions.months);
+    }
+
+    this.removeSubcategoriesOfCategory = function(category) {
+      $log.debug('SpendingController.removeSubcategoriesOfCategory()');
+      let subcategoryNames = category.subcategories.map(sub => sub.name);
+      let returnArray = this.transactions.subcategories.filter((sub) => {
+        if (subcategoryNames.indexOf(sub.name) === -1) {
+          return true;
+        }
+        return false;
+      });
+      return returnArray;
+    }
+
+    this.removeTransactionsOfCategory = function(category, categoryIndex) {
+      $log.debug('SpendingController.removeTransactionsOfCategory()');
+      this.transactions.months.forEach((month) => {
+        month.allTransactions = month.allTransactions.filter((trans) => {
+          if(trans.category === category) {
+            return false;
+          }
+          return true;
+        });
+        month.categoryData
+      });
+      this.transactions.weeks.forEach((week) => {
+        week.allTransactions = week.allTransactions.filter((trans) => {
+          if(trans.category === category) {
+            return false;
+          }
+          return true;
+        });
+      });
     }
 
     this.addTransaction = function(trans) {
@@ -301,8 +351,8 @@ module.exports = function(app) {
         //error response
       } else {
         trans.userId = this.user._id;
-        if (trans.date == null || trans.amount == null || trans.category == null || trans.subcategory == null) {
-          $log.error('transaction object must have a date, amount, category and subcategory');
+        if (trans.date == null || trans.amount == null || trans.category == null || trans.subcategory == null || trans.vendor == null) {
+          $log.error('transaction object must have a date, amount, vendor, category and subcategory');
           //error response
         } else {
           $http.post(this.baseUrl + '/transaction', trans, this.config)
@@ -310,6 +360,7 @@ module.exports = function(app) {
             $log.log('Successfully added transaction', res.data);
             this.addToMonth(trans);
             this.addToWeek(trans);
+            // Redraw d3 graphs
             this.showHide.addButtons = 0;
             this.formValues.transaction = {date: undefined, amount: undefined, vendor: undefined, category: undefined, subcategory: undefined};
           })
@@ -328,6 +379,7 @@ module.exports = function(app) {
           $log.log('Successfully Deleted Transaction', res.data);
           this.deleteFromWeek(res.data);
           this.deleteFromMonth(res.data);
+          // redraw d3 graphs
         })
         .catch((err) => {
           $log.error('Error in SpendingController.removeTransaction()', err);
@@ -347,7 +399,6 @@ module.exports = function(app) {
             this.user.vendors.push(res.data);
             this.showHide.addButtons = 0;
             this.formValues.vendor.name = undefined;
-
           })
           .catch((err) => {
             $log.error('Error in SpendingController.addVendor()', err);
@@ -371,11 +422,11 @@ module.exports = function(app) {
     this.addCategory = function(category) {
       $log.debug('SpendingController.addCategory()');
       category.userId = this.user._id;
-      let categoryList = this.d3Variables.categoryNames;
+      let categoryList = this.transactions.categories.map(cat => cat.name.toLowerCase());
       if (category.name == null || category.userId == null) {
         $log.error('Category must have a name and userId', category.name, category.userId);
         //error response
-      } else if (categoryList.includes(category.name)) {
+      } else if (categoryList.includes(category.name.toLowerCase())) {
         $log.error('Category already exists');
         //error response
       } else {
@@ -383,6 +434,7 @@ module.exports = function(app) {
           .then((res) => {
             $log.log('Successfully Added Category', res.data);
             this.user.categories.push(res.data);
+            this.transactions.categories.push(res.data);
             this.showHide.addButtons = 0;
             this.formValues.category.name = undefined;
           })
@@ -397,8 +449,15 @@ module.exports = function(app) {
       $log.debug('SpendingController.removeCategory()');
       $http.delete(this.baseUrl + '/category/' + category._id, this.config)
         .then((res) => {
+          let subcategoryNames = [];
+          let index = this.transactions.categories.indexOf(category);
           $log.log('Successfully Deleted Category', res.data);
           this.user.categories.splice(this.user.categories.indexOf(category), 1);
+          subcategoryNames = this.transactions.categories[index].subcategories.map(sub => sub.name);
+          this.removeSubcategoriesOfCategory(category);
+          this.transactions.categories.splice(index, 1);
+
+          this.d3Variables.categoryNames.splice(this.d3Variables.categoryNames.indexOf(category.name), 1);
         }, (err) => {
           $log.error('Error in SpendingController.removeCategory()', err);
           // add error response
@@ -407,18 +466,18 @@ module.exports = function(app) {
 
     this.addSubcategory = function(subcategory) {
       $log.debug('SpendingController.addSubcategory()');
-      let subcategoryList = this.d3Variables.subcategoryNames;
+      let subcategoryList = this.transactions.subcategories;
       if (subcategory.name == null || subcategory.supercategory == null) {
         $log.error('Subcategory must have a name and a supercategory', subcategory.name, subcategory.supercategory);
         // add error response
-      } else if (subcategoryList.includes(subcategory.name)) {
+      } else if (subcategoryList.map(sub => sub.name).includes(subcategory.name)) {
         $log.error('Subcategory already exists');
         //add error response
       } else {
         $http.post(this.baseUrl + '/subcategory', subcategory, this.config)
           .then((res) => {
             $log.log('Successfully added Subcategory', res.data);
-            let index = this.user.categories.map(function(category) {return category.name}).indexOf(subcategory.supercategory.name);
+            let index = this.user.categories.map(function(category) {return category._id}).indexOf(subcategory.supercategory._id);
             if (Array.isArray(this.user.categories[index].subcategories)) {
               this.user.categories[index].subcategories.push(res.data);
             } else {

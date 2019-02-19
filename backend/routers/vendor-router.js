@@ -7,6 +7,8 @@ const debug = require('debug')('vendorRouter');
 
 const Vendor = require('../models/vendor');
 const User = require('../models/user');
+const Transaction = require('../models/transaction');
+const transactionFormatter = require('../lib/transaction-format');
 
 let vendorRouter = module.exports = exports = new Router();
 
@@ -49,13 +51,39 @@ vendorRouter.put('/:id', jsonParser, function(req, res, next) {
 
 vendorRouter.delete('/:id', function(req, res, next) {
   debug('DELETE /api/vendor/:id');
+  let userId = '';
+  let userTransactions = [];
+  let transactionArray = [];
   Vendor.findById(req.params.id)
     .then(ven => {
+      userId = ven.userId;
       return User.findById(ven.userId);
     })
     .then(user => {
       return user.removeVendorById(req.params.id);
     })
-    .then(ven => res.json(ven))
+    .then((vendor) => {
+      Transaction.find({vendor: vendor._id}).then((transArray) => {
+        transactionArray = transArray.map(trans => trans._id);
+        Transaction.deleteMany({vendor: vendor._id}).then(() => {
+          User.findById(userId).then((user) => {
+            userTransactions = user.transactions.filter((trans) => {
+              if (transactionArray.indexOf(trans) === -1) {
+                return true;
+              }
+              return false;
+            });
+            User.findOneAndUpdate({_id: userId}, {transactions: userTransactions}, {new: true}).then((user) => {
+              Transaction.find({userId: user._id}).populate('vendor category subcategory').then((transFinal) => {
+                if (transFinal.length > 0) {
+                  let formatted = transactionFormatter.format(transFinal);
+                  res.json({transactions: formatted, vendor: vendor});
+                }
+              }).catch(err => next(createError(400, err.message)));
+            }).catch(err => next(createError(400, err.message)));
+          }).catch(err => next(createError(400, err.message)));
+        }).catch(err => next(createError(400, err.message)));
+      }).catch(err => next(createError(400, err.message)));
+    })
     .catch(next);
 });
