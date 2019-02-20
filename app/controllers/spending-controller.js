@@ -95,6 +95,8 @@ module.exports = function(app) {
           .text(d => d);
       }
 
+      svg.selectAll('*').remove();
+
       svg.append('g')
       .selectAll('g')
       .data(dataArray)
@@ -121,29 +123,6 @@ module.exports = function(app) {
       return svg.node();
     }
 
-    this.updateChart = function(timeSelect = 0, dataSelect = 0) {
-      $log.debug('SpendingController.updateChart()');
-      let timeNames = (timeSelect === 0) ? this.transactions.months.labels : this.transactions.weeks.labels;
-      let timeMax = (timeSelect === 0) ? this.getMax(this.transactions.months) : this.getMax(this.transactions.weeks);
-      let dataNames = (dataSelect === 0) ? this.getNames(this.transactions.categories) : this.getNames(this.transactions.subcategories);
-      let dataArray = (dataSelect === 0 && timeSelect === 0) ? this.transactions.months.categoryData : (dataSelect === 0 && timeSelect === 1) ? this.transactions.weeks.categoryData : (dataSelect === 1 && timeSelect === 0) ? this.transactions.months.subcategoryData : this.transactions.weeks.subcategoryData;
-
-      let color = d3.scaleOrdinal()
-      .domain(dataNames)
-      .range(d3.quantize(t => d3.interpolateSpectral(t * 0.8 + 0.1), dataNames.length).reverse())
-      .unknown('#ccc');
-
-      let x = d3.scaleBand()
-        .domain(timeNames)
-        .range([margin.left, width - margin.right])
-        .padding(0.1);
-
-      let y = d3.scaleLinear()
-         .domain([0, timeMax])
-         .rangeRound([height - margin.bottom, margin.top]);
-
-    }
-
     this.setButtons = function(num) {
       if (this.showHide.addButtons === num) {
         this.showHide.addButtons = 0;
@@ -157,16 +136,6 @@ module.exports = function(app) {
       this.showHide.leftContainer = num;
       this.formValues = {vendor: {}, category: {}, subcategory: {}, transaction: {}};
     }
-
-    this.checkNoUser = function() {
-      $log.debug('SpendingController.checkNoUser()');
-      let user = this.getUser();
-      if(user.username === '' || user.username === undefined) {
-        $location.path('/login');
-      }
-    }
-
-    this.getUser = auth.getUser.bind(auth);
 
     this.getMax = function(array) {
       $log.debug('SpendingController.setMax()')
@@ -337,6 +306,7 @@ module.exports = function(app) {
             $log.log('Successfully added transaction', res.data);
             this.addToWeek(trans);
             this.addToMonth(trans);
+            this.initChart(this.chartValues.timeSelect, this.chartValues.dataSelect);
             // Redraw d3 graphs
             this.showHide.addButtons = 0;
             this.formValues.transaction = {date: undefined, amount: undefined, vendor: undefined, category: undefined, subcategory: undefined};
@@ -356,6 +326,7 @@ module.exports = function(app) {
           $log.log('Successfully Deleted Transaction', res.data);
           this.deleteFromWeek(res.data);
           this.deleteFromMonth(res.data);
+          this.initChart(this.chartValues.timeSelect, this.chartValues.dataSelect);
           // redraw d3 graphs
         })
         .catch((err) => {
@@ -391,6 +362,7 @@ module.exports = function(app) {
           $log.log('Successfully deleted Vendor', res.data.vendor);
           this.transactions = res.data.transactions;
           this.user = res.data.user;
+          this.initChart(this.chartValues.timeSelect, this.chartValues.dataSelect);
           // Redraw d3 graphs
         }, (err) => {
           $log.error('Error if SpendingController.removeVendor()', err);
@@ -431,6 +403,7 @@ module.exports = function(app) {
           $log.log('Successfully Deleted Category', res.data.category);
           this.user = res.data.user;
           this.transactions = res.data.transactions;
+          this.initChart(this.chartValues.timeSelect, this.chartValues.dataSelect);
           // Redraw d3 graphs
         }, (err) => {
           $log.error('Error in SpendingController.removeCategory()', err);
@@ -472,12 +445,23 @@ module.exports = function(app) {
           $log.log('Successfully deleted Subcategory', res.data);
           this.user = res.data.user;
           this.transactions = res.data.transactions;
+          this.initChart(this.chartValues.timeSelect, this.chartValues.dataSelect);
           //Redraw d3 graphs
         }, (err) => {
           $log.error('Error in SpendingController.removeSubcategory()', err);
           // add error response
         });
     }
+
+    this.checkNoUser = function() {
+      $log.debug('SpendingController.checkNoUser()');
+      let user = this.getUser();
+      if(user.username === '' || user.username === undefined) {
+        $location.path('/login');
+      }
+    }
+
+    this.getUser = auth.getUser.bind(auth);
 
     this.initSpending = function() {
       this.checkNoUser();
