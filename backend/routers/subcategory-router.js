@@ -24,7 +24,7 @@ subcategoryRouter.post('/', jsonParser, function(req, res, next) {
             .then(user => {
               user.addSubcategory(req.body)
               .then((subcat) => {
-                res.json(sub);
+                res.json(subcat);
               }).catch(next);
             }).catch(err => next(createError(400, err.message)));
         }).catch(next);
@@ -78,11 +78,11 @@ subcategoryRouter.delete('/:id', function(req, res, next) {
               }
               return false;
             });
-            User.findOneAndUpdate({_id: userId}, {transactions: userTransactions}, {new: true}).then((user) => {
-              Transaction.find({userId: user._id}).populate('vendor category subcategory').then((transFinal) => {
+            User.findOneAndUpdate({_id: userId}, {transactions: userTransactions}, {new: true}).then((userFinal) => {
+              Transaction.find({userId: userFinal._id}).populate('vendor category subcategory').then((transFinal) => {
                 if (transFinal.length > 0) {
                   let formatted = transactionFormatter.format(transFinal);
-                  res.json({transactions: formatted, subvategory: sub});
+                  res.json({transactions: formatted, subcategory: sub, user: userFinal});
                 }
               }).catch(err => next(createError(400, err.message)));
             }).catch(err => next(createError(400, err.message)));

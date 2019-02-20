@@ -60,17 +60,20 @@ module.exports = function(app) {
          .rangeRound([height - margin.bottom, margin.top]);
 
       let xAxis = g => g
+        .attr('class', 'xAxis')
         .attr('transform', `translate(0,${height - margin.bottom})`)
         .call(d3.axisBottom(x).tickSizeOuter(0))
         .call(g => g.selectAll('.domain').remove());
 
       let yAxis = g => g
+        .attr('class', 'yAxis')
         .attr('transform', `translate(${margin.left}, 0)`)
         .call(d3.axisLeft(y).ticks(null, 's'))
         .call(g => g.selectAll('.domain').remove);
 
       let legend = svg => {
         const g = svg
+          .attr('class', 'legend')
           .attr('font-family', 'sans-serif')
           .attr('font-size', 10)
           .attr('text-anchor', 'end')
@@ -116,6 +119,29 @@ module.exports = function(app) {
         .call(legend);
 
       return svg.node();
+    }
+
+    this.updateChart = function(timeSelect = 0, dataSelect = 0) {
+      $log.debug('SpendingController.updateChart()');
+      let timeNames = (timeSelect === 0) ? this.transactions.months.labels : this.transactions.weeks.labels;
+      let timeMax = (timeSelect === 0) ? this.getMax(this.transactions.months) : this.getMax(this.transactions.weeks);
+      let dataNames = (dataSelect === 0) ? this.getNames(this.transactions.categories) : this.getNames(this.transactions.subcategories);
+      let dataArray = (dataSelect === 0 && timeSelect === 0) ? this.transactions.months.categoryData : (dataSelect === 0 && timeSelect === 1) ? this.transactions.weeks.categoryData : (dataSelect === 1 && timeSelect === 0) ? this.transactions.months.subcategoryData : this.transactions.weeks.subcategoryData;
+
+      let color = d3.scaleOrdinal()
+      .domain(dataNames)
+      .range(d3.quantize(t => d3.interpolateSpectral(t * 0.8 + 0.1), dataNames.length).reverse())
+      .unknown('#ccc');
+
+      let x = d3.scaleBand()
+        .domain(timeNames)
+        .range([margin.left, width - margin.right])
+        .padding(0.1);
+
+      let y = d3.scaleLinear()
+         .domain([0, timeMax])
+         .rangeRound([height - margin.bottom, margin.top]);
+
     }
 
     this.setButtons = function(num) {
@@ -188,22 +214,6 @@ module.exports = function(app) {
         timeArray[i].subcategoryData[timeIndex][0] -= amount;
         timeArray[i].subcategoryData[timeIndex][1] -= amount;
       }
-    }
-
-    this.deleteCategoryFromTransactions = function(category) {
-      $log.debug('SpendingController.deleteCategoryFromTransactions()')
-      this.transactions.months.forEach((month) => {
-        month.allTransactions = month.allTransactions.filter((trans) => {
-            if (trans.category !== category.name) {
-              return true;
-            }
-            return false;
-        });
-        delete month.chartCategories[category.name];
-        category.subcategories.forEach((sub) => {
-          delete month.chartSubcategories[sub.name];
-        })
-      });
     }
 
     this.getUserData = function() {
@@ -310,39 +320,6 @@ module.exports = function(app) {
       this.subtractSubcategoryData(trans.amount, subcategoryIndex, this.transactions.subcategories.length, monthIndex, this.transactions.months);
     }
 
-    this.removeSubcategoriesOfCategory = function(category) {
-      $log.debug('SpendingController.removeSubcategoriesOfCategory()');
-      let subcategoryNames = category.subcategories.map(sub => sub.name);
-      let returnArray = this.transactions.subcategories.filter((sub) => {
-        if (subcategoryNames.indexOf(sub.name) === -1) {
-          return true;
-        }
-        return false;
-      });
-      return returnArray;
-    }
-
-    this.removeTransactionsOfCategory = function(category, categoryIndex) {
-      $log.debug('SpendingController.removeTransactionsOfCategory()');
-      this.transactions.months.forEach((month) => {
-        month.allTransactions = month.allTransactions.filter((trans) => {
-          if(trans.category === category) {
-            return false;
-          }
-          return true;
-        });
-        month.categoryData
-      });
-      this.transactions.weeks.forEach((week) => {
-        week.allTransactions = week.allTransactions.filter((trans) => {
-          if(trans.category === category) {
-            return false;
-          }
-          return true;
-        });
-      });
-    }
-
     this.addTransaction = function(trans) {
       $log.debug('SpendingController.addTransaction()');
       let transMoment = moment(trans.date);
@@ -358,8 +335,8 @@ module.exports = function(app) {
           $http.post(this.baseUrl + '/transaction', trans, this.config)
           .then((res) => {
             $log.log('Successfully added transaction', res.data);
-            this.addToMonth(trans);
             this.addToWeek(trans);
+            this.addToMonth(trans);
             // Redraw d3 graphs
             this.showHide.addButtons = 0;
             this.formValues.transaction = {date: undefined, amount: undefined, vendor: undefined, category: undefined, subcategory: undefined};
@@ -411,8 +388,10 @@ module.exports = function(app) {
       $log.debug('SpendingController.removeVendor()');
       $http.delete(this.baseUrl + '/vendor/' + vendor._id, this.config)
         .then((res) => {
-          $log.log('Successfully deleted Vendor', res.data);
-          this.user.vendors.splice(this.user.vendors.indexOf(vendor), 1);
+          $log.log('Successfully deleted Vendor', res.data.vendor);
+          this.transactions = res.data.transactions;
+          this.user = res.data.user;
+          // Redraw d3 graphs
         }, (err) => {
           $log.error('Error if SpendingController.removeVendor()', err);
           // add error response;
@@ -449,15 +428,10 @@ module.exports = function(app) {
       $log.debug('SpendingController.removeCategory()');
       $http.delete(this.baseUrl + '/category/' + category._id, this.config)
         .then((res) => {
-          let subcategoryNames = [];
-          let index = this.transactions.categories.indexOf(category);
-          $log.log('Successfully Deleted Category', res.data);
-          this.user.categories.splice(this.user.categories.indexOf(category), 1);
-          subcategoryNames = this.transactions.categories[index].subcategories.map(sub => sub.name);
-          this.removeSubcategoriesOfCategory(category);
-          this.transactions.categories.splice(index, 1);
-
-          this.d3Variables.categoryNames.splice(this.d3Variables.categoryNames.indexOf(category.name), 1);
+          $log.log('Successfully Deleted Category', res.data.category);
+          this.user = res.data.user;
+          this.transactions = res.data.transactions;
+          // Redraw d3 graphs
         }, (err) => {
           $log.error('Error in SpendingController.removeCategory()', err);
           // add error response
@@ -477,12 +451,11 @@ module.exports = function(app) {
         $http.post(this.baseUrl + '/subcategory', subcategory, this.config)
           .then((res) => {
             $log.log('Successfully added Subcategory', res.data);
-            let index = this.user.categories.map(function(category) {return category._id}).indexOf(subcategory.supercategory._id);
-            if (Array.isArray(this.user.categories[index].subcategories)) {
-              this.user.categories[index].subcategories.push(res.data);
-            } else {
-              this.user.categories[index].subcategories = [res.data];
-            }
+            let index = this.user.categories.map(cat => cat._id).indexOf(res.data.supercategory);
+            this.user.subcategories.push(res.data);
+            this.user.categories[index].subcategories.push(res.data);
+            this.transactions.categories[index].subcategories.push(res.data);
+            this.transactions.subcategories.push(res.data);
             this.showHide.addButtons = 0;
             this.formValues.subcategory = {name: undefined, supercategory: undefined};
           }, (err) => {
@@ -497,8 +470,9 @@ module.exports = function(app) {
       $http.delete(this.baseUrl + '/subcategory/' + subcategory._id, this.config)
         .then((res) => {
           $log.log('Successfully deleted Subcategory', res.data);
-          let index = this.user.categories.map(function(category) {return category.name}).indexOf(subcategory.supercategory.name);
-          this.user.categories[index].subcategories.splice(this.user.categories[index].subcategories.indexOx(subcategory), 1);
+          this.user = res.data.user;
+          this.transactions = res.data.transactions;
+          //Redraw d3 graphs
         }, (err) => {
           $log.error('Error in SpendingController.removeSubcategory()', err);
           // add error response

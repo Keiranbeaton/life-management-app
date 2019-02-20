@@ -69,15 +69,14 @@ categoryRouter.delete('/:id', function(req, res, next) {
           }
           return false;
         });
-        User.findOneAndUpdate({_id: userId}, {transactions: userTransactions}, {new: true})
-          .then((user) => {
-            Transaction.find({userId: user._id}).populate('vendor category subcategory').then((transArray) => {
-              if(transArray.length > 0) {
-                let formatted = transactionFormatter.format(transArray);
-                res.json({transactions: formatted, category: cat});
-              }
-            }).catch(err => next(createError(400, err.messsage)));
-          }).catch(err => next(createError(400, err.message)));
+        User.findOneAndUpdate({_id: userId}, {transactions: userTransactions}, {new: true}).then((userFinal) => {
+          Transaction.find({userId: userFinal._id}).populate('vendor category subcategory').then((transArray) => {
+            if(transArray.length > 0) {
+              let formatted = transactionFormatter.format(transArray);
+              res.json({transactions: formatted, category: cat, user: userFinal});
+            }
+          }).catch(err => next(createError(400, err.messsage)));
+        }).catch(err => next(createError(400, err.message)));
       }).catch(err => next(createError(400, err.message)));
     })
     .catch(next);
